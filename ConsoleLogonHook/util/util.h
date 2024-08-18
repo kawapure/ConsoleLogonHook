@@ -5,6 +5,7 @@
 #include <winstring.h>
 #include <sddl.h>
 #include <Shlwapi.h>
+#include <ShlObj.h>
 #include <vector>
 #include <spdlog/spdlog.h>
 
@@ -92,10 +93,20 @@ static const wchar_t* ConvertHStringToRawString(HSTRING string)
     return convertedString;
 }
 
+static void GetLogonUIExePath(WCHAR *buffer, size_t size)
+{
+    ZeroMemory(buffer, size);
+    GetSystemDirectoryW(buffer, size);
+    wcscat_s(buffer, size, L"\\LogonUI.exe");
+}
+
 inline bool bLogonConsoleShown = true;
 static void MinimizeLogonConsole()
 {
-    auto consoleWindow = FindWindowW(0, L"C:\\Windows\\system32\\LogonUI.exe");
+    WCHAR logonUiExePath[MAX_PATH];
+    GetLogonUIExePath(logonUiExePath, MAX_PATH);
+
+    auto consoleWindow = FindWindowW(0, logonUiExePath);
     if (!consoleWindow) return;
 
     //ShowWindow(consoleWindow, SW_FORCEMINIMIZE);
@@ -106,7 +117,10 @@ static void MinimizeLogonConsole()
 
 static void ShowLogonConsole()
 {
-    auto consoleWindow = FindWindowW(0, L"C:\\Windows\\system32\\LogonUI.exe");
+    WCHAR logonUiExePath[MAX_PATH];
+    GetLogonUIExePath(logonUiExePath, MAX_PATH);
+
+    auto consoleWindow = FindWindowW(0, logonUiExePath);
     if (!consoleWindow) return;
 
     bLogonConsoleShown = true;
@@ -199,12 +213,27 @@ __declspec(noinline) static HRESULT GetSIDStringFromUsername(PCWSTR pcszUserName
     return hr;
 }
 
+static std::wstring GetProgramDataPath()
+{
+    // Must be cleaned up by CoTaskMemFree!
+    PWSTR pRawProgramDataPath;
+    SHGetKnownFolderPath(FOLDERID_ProgramData, 0, NULL, &pRawProgramDataPath);
+
+    std::wstring programDataPath(pRawProgramDataPath);
+
+    CoTaskMemFree(pRawProgramDataPath);
+
+    return programDataPath;
+}
+
 static std::wstring GetProfilePicturePathFromSID(const wchar_t* sid, bool bHighRes = false)
 {
-    std::wstring finalpath = L"C:\\ProgramData\\Microsoft\\User Account Pictures\\user-48.png";
+    std::wstring programDataPath = GetProgramDataPath();
+
+    std::wstring finalpath = programDataPath + L"\\Microsoft\\User Account Pictures\\user-48.png";
 
     if (bHighRes)
-        finalpath = L"C:\\ProgramData\\Microsoft\\User Account Pictures\\user-192.png";
+        finalpath = programDataPath + L"\\Microsoft\\User Account Pictures\\user-192.png";
 
     //WCHAR* str = 0;
     //auto hr = GetSIDStringFromUsername(username.c_str(), &str);
@@ -253,6 +282,8 @@ static std::wstring GetProfilePicturePathFromSID(const wchar_t* sid, bool bHighR
 //    return GetProfilePicturePathFromSID(sid.c_str(),bHighRes);
 //}
 
+// TODO(kawapure): Is there any reason for this overload to have a different
+// implementation from the one which returns a std::wstring?
 static void GetProfilePicturePathFromSID(std::wstring sid, const wchar_t* outUsername, bool bHighRes = false)
 {
     const wchar_t* finalpath = L"C:\\ProgramData\\Microsoft\\User Account Pictures\\user-48.png";

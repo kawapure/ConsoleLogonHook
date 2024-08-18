@@ -68,7 +68,12 @@ namespace init
     {
         InitSpdlog();
         //system("start cmd.exe");
-        auto baseaddress = (uintptr_t)LoadLibraryW(L"C:\\Windows\\System32\\ConsoleLogon.dll");
+
+        WCHAR consoleLogonDllPathBuffer[MAX_PATH];
+        GetSystemDirectoryW(consoleLogonDllPathBuffer, MAX_PATH);
+        wcscat_s(consoleLogonDllPathBuffer, L"\\ConsoleLogon.dll");
+
+        auto baseaddress = (uintptr_t)LoadLibraryW(consoleLogonDllPathBuffer);
         if (!baseaddress)
             MessageBox(0, L"FAILED TO LOAD", L"FAILED TO LOAD", 0);
 

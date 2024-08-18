@@ -13,7 +13,11 @@ HMODULE GetConsoleLogonDLL()
     if (consoleLogon)
         return consoleLogon;
 
-    consoleLogon = LoadLibraryW(L"C:\\Windows\\System32\\ConsoleLogon.dll");
+    WCHAR pathBuffer[MAX_PATH];
+    GetSystemDirectoryW(pathBuffer, MAX_PATH);
+    wcscat_s(pathBuffer, L"\\ConsoleLogon.dll");
+
+    consoleLogon = LoadLibraryW(pathBuffer);
     if (!consoleLogon)
         MessageBox(0, L"FAILED TO LOAD", L"FAILED TO LOAD", 0);
     return consoleLogon;
