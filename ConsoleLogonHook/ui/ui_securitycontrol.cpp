@@ -207,20 +207,61 @@ const wchar_t* external::SecurityOptionControl_getString(void* actualInstance)
 
 void uiSecurityControl::InitHooks(uintptr_t baseaddress)
 {
-    LogonViewManager__ShowSecurityOptionsUIThread = memory::FindPatternCached<decltype(LogonViewManager__ShowSecurityOptionsUIThread)>("LogonViewManager__ShowSecurityOptionsUIThread", { "48 8B EC 48 83 EC 40 49 8B F8 8B F2 4C 8B F1 E8" },true);
-    LogonViewManager__ShowSecurityOptions = memory::FindPatternCached<decltype(LogonViewManager__ShowSecurityOptions)>("LogonViewManager__ShowSecurityOptions", { "48 89 ?? 28 44 89 ?? 30 ?? 89 ?? 38 ?? 89 73 40 ?? 85 F6 74 10 ?? 8B 06 ?? 8B CE 48 8B 40 08 FF 15" },true);
-    SecurityOptionControl_RuntimeClassInitialize = memory::FindPatternCached<decltype(SecurityOptionControl_RuntimeClassInitialize)>("SecurityOptionControl_RuntimeClassInitialize", {"B9 10 00 00 00 E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 74 22 48 8B 07 49 89 06 48 8B 4F 08 49 89 4E 08 48 85 C9 74 12 48 8B 01"}, true);
-    SecurityOptionControlHandleKeyInput = memory::FindPatternCached<decltype(SecurityOptionControlHandleKeyInput)>("SecurityOptionControlHandleKeyInput", { "48 89 5C 24 10 48 89 74 24 20 55 57 41 56 48 8B EC 48 83 EC 70 48 8B 05 ?? ?? ?? ?? 48 33 C4" });
+    LogonViewManager__ShowSecurityOptionsUIThread = memory::FindPatternCached<decltype(LogonViewManager__ShowSecurityOptionsUIThread)>(
+        "LogonViewManager__ShowSecurityOptionsUIThread", 
+        { 
+            "48 8B EC 48 83 EC 40 49 8B F8 8B F2 4C 8B F1 E8" 
+        },
+        true
+    );
+    LogonViewManager__ShowSecurityOptions = memory::FindPatternCached<decltype(LogonViewManager__ShowSecurityOptions)>(
+        "LogonViewManager__ShowSecurityOptions", 
+        { 
+            "48 89 ?? 28 44 89 ?? 30 ?? 89 ?? 38 ?? 89 73 40 ?? 85 F6 74 10 ?? 8B 06 ?? 8B CE 48 8B 40 08 FF 15" 
+        },
+        true
+    );
+    SecurityOptionControl_RuntimeClassInitialize = memory::FindPatternCached<decltype(SecurityOptionControl_RuntimeClassInitialize)>(
+        "SecurityOptionControl_RuntimeClassInitialize", 
+        {
+            "B9 10 00 00 00 E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 74 22 48 8B 07 49 89 06 48 8B 4F 08 49 89 4E 08 48 85 C9 74 12 48 8B 01"
+        },
+        true
+    );
+    SecurityOptionControlHandleKeyInput = memory::FindPatternCached<decltype(SecurityOptionControlHandleKeyInput)>(
+        "SecurityOptionControlHandleKeyInput", 
+        { 
+            "48 89 5C 24 10 48 89 74 24 20 55 57 41 56 48 8B EC 48 83 EC 70 48 8B 05 ?? ?? ?? ?? 48 33 C4" 
+        }
+    );
     //SecurityOptionControlHandleKeyInput = decltype(SecurityOptionControlHandleKeyInput)(baseaddress + 0x44490);
     //ConsoleUIView__Initialize = decltype(ConsoleUIView__Initialize)(baseaddress + 0x42710);
     //ConsoleUIView__HandleKeyInput = decltype(ConsoleUIView__HandleKeyInput)(baseaddress + 0x43530);
     
-    void** SecurityOptionControlVtable = (void**)REL(memory::FindPatternCached<uintptr_t>("SecurityOptionControlVtable", { "48 8D 05 ?? ?? ?? ?? 48 83 63 48 00 48 83 63 50 00 48 83 63 58 00 48 83 63 68 00 83 63 70 00 48 89 43 08","48 8D 05 ?? ?? ?? ?? 48 89 43 08 48 8D 05 ?? ?? ?? ?? 48 89 43 30 48 89 6B 48"}), 3);
+    void** SecurityOptionControlVtable = (void**)REL(memory::FindPatternCached<uintptr_t>(
+        "SecurityOptionControlVtable", 
+        {
+            "48 8D 05 ?? ?? ?? ?? 48 83 63 48 00 48 83 63 50 00 48 83 63 58 00 48 83 63 68 00 83 63 70 00 48 89 43 08",
+            "48 8D 05 ?? ?? ?? ?? 48 89 43 08 48 8D 05 ?? ?? ?? ?? 48 89 43 30 48 89 6B 48"
+        }
+    ), 3);
     
     SecurityOptionControl_Destructor = (decltype(SecurityOptionControl_Destructor))(SecurityOptionControlVtable[7]);
-    SecurityOptionsView__RuntimeClassInitialize = memory::FindPatternCached<decltype(SecurityOptionsView__RuntimeClassInitialize)>("SecurityOptionsView__RuntimeClassInitialize", { "55 56 57 41 56 41 57 48 8B EC 48 83 EC 30 49 8B D8","55 56 57 41 56 41 57 48 8B EC 48 83 EC 30" },true);
+    SecurityOptionsView__RuntimeClassInitialize = memory::FindPatternCached<decltype(SecurityOptionsView__RuntimeClassInitialize)>(
+        "SecurityOptionsView__RuntimeClassInitialize",
+        {
+            "55 56 57 41 56 41 57 48 8B EC 48 83 EC 30 49 8B D8","55 56 57 41 56 41 57 48 8B EC 48 83 EC 30"
+        },
+        true
+    );
     //CredUIManager__ShowCredentialView = memory::FindPatternCached<decltype(CredUIManager__ShowCredentialView)>("CredUIManager__ShowCredentialView", "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8B EC");
-    SecurityOptionsView__Destructor = memory::FindPatternCached<decltype(SecurityOptionsView__Destructor)>("SecurityOptionsView__Destructor", { "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 8B F2 48 8B D9 48 8B 79 78 48 83 61 78 00","48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B 79 78 8B F2 48 83 61 78 00 48 8B D9"});
+    SecurityOptionsView__Destructor = memory::FindPatternCached<decltype(SecurityOptionsView__Destructor)>(
+        "SecurityOptionsView__Destructor",
+        {
+            "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 8B F2 48 8B D9 48 8B 79 78 48 83 61 78 00",
+            "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B 79 78 8B F2 48 83 61 78 00 48 8B D9"
+        }
+    );
 
     Hook(LogonViewManager__ShowSecurityOptionsUIThread, LogonViewManager__ShowSecurityOptionsUIThread_Hook);
     Hook(LogonViewManager__ShowSecurityOptions, LogonViewManager__ShowSecurityOptions_Hook);
