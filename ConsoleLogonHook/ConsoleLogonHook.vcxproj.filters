@@ -399,6 +399,24 @@
     <ClInclude Include="util\memory_man.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="msdia\sdk\include\cvconst.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="msdia\sdk\include\dia2.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="msdia\sdk\include\diacreate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="msdia\msdia.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\hooks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="init\initp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -446,11 +464,29 @@
     <ClCompile Include="util\util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="msdia\msdia.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\hooksprivate.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\hooks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Library Include="detours\detours.lib" />
+    <Library Include="msdia\sdk\lib\diaguids.lib" />
+    <Library Include="msdia\sdk\lib\arm64\diaguids.lib" />
+    <Library Include="msdia\sdk\lib\arm\diaguids.lib" />
+    <Library Include="msdia\sdk\lib\amd64\diaguids.lib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="spdlog\fmt\bundled\fmt.license.rst" />
+  </ItemGroup>
+  <ItemGroup>
+    <Midl Include="msdia\sdk\idl\dia2.idl">
+      <Filter>Source Files</Filter>
+    </Midl>
   </ItemGroup>
 </Project>

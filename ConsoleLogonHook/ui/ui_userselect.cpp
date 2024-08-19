@@ -8,6 +8,8 @@
 #include <atlbase.h>
 #include "util/interop.h"
 #include "util/memory_man.h"
+#include "util/hooks.h"
+#include "util/hooksprivate.h"
 
 std::vector<SelectableUserOrCredentialControlWrapper> buttons;
 const int signInOptionChoice = 0;
@@ -209,31 +211,33 @@ DWORD WINAPI TickThread(LPVOID lparam)
     return 0;
 }
 
-void uiUserSelect::InitHooks(uintptr_t baseaddress)
+void uiUserSelect::InitHooks(IHookSearchHandler *search)
 {
-    UserSelectionView__RuntimeClassInitialize = memory::FindPatternCached<decltype(UserSelectionView__RuntimeClassInitialize)>(
-        "UserSelectionView__RuntimeClassInitialize", 
+    search->Add(
+        HOOK_TARGET_ARGS(UserSelectionView__RuntimeClassInitialize),
+        "?RuntimeClassInitialize@UserSelectionView@@QEAAJPEAUICredProvDataModel@CredProvData@Logon@UI@Internal@Windows@@@Z",
         { 
             "49 8B 4E 78 48 3B CE 74 ?? 48 85 F6 74 14 48 8B 06 48 8B CE 48 8B 40 08 FF 15" 
         },
         true
     );
-    SelectableUserOrCredentialControl__RuntimeClassInitialize = memory::FindPatternCached<decltype(SelectableUserOrCredentialControl__RuntimeClassInitialize)>(
-        "SelectableUserOrCredentialControl__RuntimeClassInitialize", 
+    search->Add(
+        HOOK_TARGET_ARGS(SelectableUserOrCredentialControl__RuntimeClassInitialize),
+        "?RuntimeClassInitialize@SelectableUserOrCredentialControl@@QEAAJPEAUIConsoleUIView@@PEAUIInspectable@@@Z",
         { 
             "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8D 79 58" 
         }
     );
-    CredProvSelectionView__RuntimeClassInitialize = memory::FindPatternCached<decltype(CredProvSelectionView__RuntimeClassInitialize)>(
-        "CredProvSelectionView__RuntimeClassInitialize", 
+    search->Add(
+        HOOK_TARGET_ARGS(CredProvSelectionView__RuntimeClassInitialize),
+        "?RuntimeClassInitialize@CredProvSelectionView@@QEAAJPEAUICredentialGroup@CredProvData@Logon@UI@Internal@Windows@@PEAUHSTRING__@@_N@Z",
         { 
             "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 56 41 57 48 8B EC 48 83 EC 60" 
         }
     );
-    //CredProvSelectionView__v_OnKeyInput = memory::FindPatternCached<decltype(CredProvSelectionView__v_OnKeyInput)>("CredProvSelectionView__v_OnKeyInput", { "40 55 53 56 57 41 56 48 8B EC 48 83 EC 20 49 8B F0" });
-
-    SelectableUserOrCredentialControl_Destructor = memory::FindPatternCached<decltype(SelectableUserOrCredentialControl_Destructor)>(
-        "SelectableUserOrCredentialControl_Destructor", 
+    search->Add(
+        HOOK_TARGET_ARGS(SelectableUserOrCredentialControl_Destructor),
+        "??_ESelectableUserOrCredentialControl@@UEAAPEAXI@Z",
         { 
             "48 89 5C 24 08 57 48 83 EC 20 8B FA 48 8B D9 48 8B 49 58 48 85 C9 74 13 48 83 63 58 00 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 90 48 8B 4B 50 48 85 C9 74 13 48 83 63 50 00 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 90 48 8B CB",
             "48 89 5C 24 08 57 48 83 EC 20 48 8B D9 8B FA 48 8B 49 58 48 85 C9 74 ?? 48 83 63 58 00 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 48 8B 4B 50 48 85 C9 74 ?? 48 83 63 50 00 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 48 8B CB"
@@ -241,38 +245,46 @@ void uiUserSelect::InitHooks(uintptr_t baseaddress)
     );
     //UserSelectionView__v_OnKeyInput = memory::FindPatternCached<decltype(UserSelectionView__v_OnKeyInput)>("UserSelectionView__v_OnKeyInput", { "40 55 53 56 57 41 56 48 8B EC 48 83 EC 20 49 8B F8 48 8B F1 41 83 20 00 66 83 7A 06 0D" });
 
-    globals::ConsoleUIView__Initialize = memory::FindPatternCached<decltype(globals::ConsoleUIView__Initialize)>(
-        "ConsoleUIView__Initialize", 
+    search->Add(
+        (void **)globals::ConsoleUIView__Initialize,
+        "ConsoleUIView__Initialize",
+        "?Initialize@ConsoleUIView@@QEAAJXZ",
         {
             "48 89 5C 24 08 57 48 83 EC 30 83 64 24 48 00",
             "48 83 60 D8 00 41 B9 01 00 00 00 4C 8B F1 45 33 C0 B9 00 00 00 C0 ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 48 8B D8"
         },
         true
     );
-    globals::ConsoleUIView__HandleKeyInput = memory::FindPatternCached<decltype(globals::ConsoleUIView__HandleKeyInput)>(
-        "ConsoleUIView__HandleKeyInput", 
-        { 
+    search->Add(
+        (void **)globals::ConsoleUIView__HandleKeyInput,
+        "ConsoleUIView__HandleKeyInput",
+        "?HandleKeyInput@ConsoleUIView@@UEAAJPEBU_KEY_EVENT_RECORD@@@Z",
+        {
             "48 89 5C 24 10 48 89 74 24 18 57 48 83 EC 20 83 64 24 30 00 48 8B FA"
         }
     );
 
-    LogonViewManager__Lock = memory::FindPatternCached<decltype(LogonViewManager__Lock)>(
-        "LogonViewManager__Lock", 
+    search->Add(
+        HOOK_TARGET_ARGS(LogonViewManager__Lock),
+        "?Lock@LogonViewManager@@QEAAJW4LogonUIRequestReason@Controller@Logon@UI@Internal@Windows@@EPEAUHSTRING__@@PEAUIUnlockTrigger@34567@@Z",
         { 
             "48 89 5C 24 18 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 70 49 8B F9 45 8A E8 8B F2",
             "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 40 4C 8B F9"
         }
     );
-    Hook(LogonViewManager__Lock, LogonViewManager__Lock_Hook);
 
-    Hook(UserSelectionView__RuntimeClassInitialize, UserSelectionView__RuntimeClassInitialize_Hook);
-    Hook(SelectableUserOrCredentialControl__RuntimeClassInitialize, SelectableUserOrCredentialControl__RuntimeClassInitialize_Hook);
-    Hook(CredProvSelectionView__RuntimeClassInitialize, CredProvSelectionView__RuntimeClassInitialize_Hook);
-    Hook(SelectableUserOrCredentialControl_Destructor, SelectableUserOrCredentialControl_Destructor_Hook);
-    Hook(globals::ConsoleUIView__Initialize, ConsoleUIView__Initialize_Hook);
+    if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
+    {
+        Hook(LogonViewManager__Lock, LogonViewManager__Lock_Hook);
 
-    uiUserSelectThreadHandle = CreateThread(0,0, TickThread,0,0,0);
-    
+        Hook(UserSelectionView__RuntimeClassInitialize, UserSelectionView__RuntimeClassInitialize_Hook);
+        Hook(SelectableUserOrCredentialControl__RuntimeClassInitialize, SelectableUserOrCredentialControl__RuntimeClassInitialize_Hook);
+        Hook(CredProvSelectionView__RuntimeClassInitialize, CredProvSelectionView__RuntimeClassInitialize_Hook);
+        Hook(SelectableUserOrCredentialControl_Destructor, SelectableUserOrCredentialControl_Destructor_Hook);
+        Hook(globals::ConsoleUIView__Initialize, ConsoleUIView__Initialize_Hook);
+
+        uiUserSelectThreadHandle = CreateThread(0, 0, TickThread, 0, 0, 0);
+    }
 }
 
 void external::ConsoleUIView__HandleKeyInputExternal(void* instance, const struct _KEY_EVENT_RECORD* keyrecord)

@@ -6,6 +6,8 @@
 #include <winstring.h>
 #include <util/interop.h>
 #include <util/memory_man.h>
+#include "util/hooks.h"
+#include "util/hooksprivate.h"
 
 //std::vector<SecurityOptionControlWrapper> buttonsList;
 
@@ -205,72 +207,155 @@ const wchar_t* external::SecurityOptionControl_getString(void* actualInstance)
     }
 }*/
 
-void uiSecurityControl::InitHooks(uintptr_t baseaddress)
+void uiSecurityControl::InitHooks(IHookSearchHandler *search)
 {
-    LogonViewManager__ShowSecurityOptionsUIThread = memory::FindPatternCached<decltype(LogonViewManager__ShowSecurityOptionsUIThread)>(
-        "LogonViewManager__ShowSecurityOptionsUIThread", 
+    search->Add(
+        HOOK_TARGET_ARGS(LogonViewManager__ShowSecurityOptionsUIThread),
+        "?ShowSecurityOptionsUIThread@LogonViewManager@@AEAAJW4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@67@@Z",
         { 
             "48 8B EC 48 83 EC 40 49 8B F8 8B F2 4C 8B F1 E8" 
         },
         true
     );
-    LogonViewManager__ShowSecurityOptions = memory::FindPatternCached<decltype(LogonViewManager__ShowSecurityOptions)>(
-        "LogonViewManager__ShowSecurityOptions", 
+    search->Add(
+        HOOK_TARGET_ARGS(LogonViewManager__ShowSecurityOptions),
+        "?ShowSecurityOptions@LogonViewManager@@QEAAJW4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@67@@Z",
         { 
             "48 89 ?? 28 44 89 ?? 30 ?? 89 ?? 38 ?? 89 73 40 ?? 85 F6 74 10 ?? 8B 06 ?? 8B CE 48 8B 40 08 FF 15" 
         },
         true
     );
-    SecurityOptionControl_RuntimeClassInitialize = memory::FindPatternCached<decltype(SecurityOptionControl_RuntimeClassInitialize)>(
-        "SecurityOptionControl_RuntimeClassInitialize", 
+    search->Add(
+        HOOK_TARGET_ARGS(SecurityOptionControl_RuntimeClassInitialize),
+        "?RuntimeClassInitialize@SecurityOptionControl@@QEAAJPEAUIConsoleUIView@@W4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@78@@Z",
         {
             "B9 10 00 00 00 E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 74 22 48 8B 07 49 89 06 48 8B 4F 08 49 89 4E 08 48 85 C9 74 12 48 8B 01"
         },
         true
     );
-    SecurityOptionControlHandleKeyInput = memory::FindPatternCached<decltype(SecurityOptionControlHandleKeyInput)>(
-        "SecurityOptionControlHandleKeyInput", 
+    search->Add(
+        HOOK_TARGET_ARGS(SecurityOptionControlHandleKeyInput),
+        "?v_HandleKeyInput@SecurityOptionControl@@EEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
         { 
             "48 89 5C 24 10 48 89 74 24 20 55 57 41 56 48 8B EC 48 83 EC 70 48 8B 05 ?? ?? ?? ?? 48 33 C4" 
         }
     );
-    //SecurityOptionControlHandleKeyInput = decltype(SecurityOptionControlHandleKeyInput)(baseaddress + 0x44490);
-    //ConsoleUIView__Initialize = decltype(ConsoleUIView__Initialize)(baseaddress + 0x42710);
-    //ConsoleUIView__HandleKeyInput = decltype(ConsoleUIView__HandleKeyInput)(baseaddress + 0x43530);
     
-    void** SecurityOptionControlVtable = (void**)REL(memory::FindPatternCached<uintptr_t>(
-        "SecurityOptionControlVtable", 
+    //// TODO(izzy): How do I handle this one?
+    //void** SecurityOptionControlVtable = (void**)REL(memory::FindPatternCached<uintptr_t>(
+    //    "??_7MessageOptionControl@@6B@",
+    //    "SecurityOptionControlVtable", 
+    //    {
+    //        "48 8D 05 ?? ?? ?? ?? 48 83 63 48 00 48 83 63 50 00 48 83 63 58 00 48 83 63 68 00 83 63 70 00 48 89 43 08",
+    //        "48 8D 05 ?? ?? ?? ?? 48 89 43 08 48 8D 05 ?? ?? ?? ?? 48 89 43 30 48 89 6B 48"
+    //    }
+    //), 3);
+
+    void **SecurityOptionControlVtable = nullptr;
+
+    /*
+     * For finding the SecurityOptionControl vtable, we can just find it directly
+     * with symbols, but we need to do more complex work in order to find it via
+     * pattern searching, so we save that for later.
+     */
+
+    HookSearchHandlerParams securityOptionSearchParams
+    {
+        search,
+        HOOK_TARGET_ARGS(SecurityOptionControlVtable),
+        "??_7SecurityOptionControl@@6B?$Selector@VControlBase@@U?$ImplementsHelper@U?$RuntimeClassFlags@$00@WRL@Microsoft@@$00U?$ImplementsMarker@VControlBase@@@Details@23@UIWeakReferenceSource@@@Details@WRL@Microsoft@@@Details@WRL@Microsoft@@@",
+        {},
+        false,
+
+        // Hack for advanced pattern search in the middle of the call
+        HSF_CALLBACK_BEFORE_SEARCH,
+        nullptr,
+        [](HookSearchHandlerParams *params) -> HRESULT
         {
-            "48 8D 05 ?? ?? ?? ?? 48 83 63 48 00 48 83 63 50 00 48 83 63 58 00 48 83 63 68 00 83 63 70 00 48 89 43 08",
-            "48 8D 05 ?? ?? ?? ?? 48 89 43 08 48 8D 05 ?? ?? ?? ?? 48 89 43 30 48 89 6B 48"
+            if (!params->pSearchHandler)
+            {
+                return E_FAIL;
+            }
+
+            if (params->pSearchHandler->GetType() != EHookSearchHandlerType::TYPE_INSTALLER)
+            {
+                return E_FAIL;
+            }
+
+            CHookSearchInstaller *pInstaller = dynamic_cast<CHookSearchInstaller *>(params->pSearchHandler);
+
+            if (!pInstaller)
+            {
+                SPDLOG_ERROR("securityOptionSearchParams callback: Failed to cast pInstaller");
+                return E_FAIL;
+            }
+
+            void *pIntermediate = nullptr;
+
+            HRESULT hr = pInstaller->TryFindSignatures(
+                params->functionName,
+                {
+                    "48 8D 05 ?? ?? ?? ?? 48 83 63 48 00 48 83 63 50 00 48 83 63 58 00 48 83 63 68 00 83 63 70 00 48 89 43 08",
+                    "48 8D 05 ?? ?? ?? ?? 48 89 43 08 48 8D 05 ?? ?? ?? ?? 48 89 43 30 48 89 6B 48"
+                },
+                params->bFindTop,
+                &pIntermediate
+            );
+
+            if (FAILED(hr))
+            {
+                // A HR failure will not cancel the parent, so we'll try to find
+                // the pattern using symbols.
+                return hr;
+            }
+
+            if (!pIntermediate)
+            {
+                return E_FAIL;
+            }
+
+            // Otherwise, we surely have the value, so we can set from the pattern match and return:
+            if (params->ppvTarget && pIntermediate)
+                *(params->ppvTarget) = (void *)REL((uintptr_t)pIntermediate, 3);
+
+            return HOOKSEARCH_S_CALLBACK_CANCEL_PARENT;
         }
-    ), 3);
-    
-    SecurityOptionControl_Destructor = (decltype(SecurityOptionControl_Destructor))(SecurityOptionControlVtable[7]);
-    SecurityOptionsView__RuntimeClassInitialize = memory::FindPatternCached<decltype(SecurityOptionsView__RuntimeClassInitialize)>(
-        "SecurityOptionsView__RuntimeClassInitialize",
+    };
+
+    HRESULT hrFindSecurityOptionControlVtable = search->AddComplex(&securityOptionSearchParams);
+
+    search->Add(
+        HOOK_TARGET_ARGS(SecurityOptionsView__RuntimeClassInitialize),
+        "?RuntimeClassInitialize@SecurityOptionsView@@QEAAJW4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@67@@Z",
         {
             "55 56 57 41 56 41 57 48 8B EC 48 83 EC 30 49 8B D8","55 56 57 41 56 41 57 48 8B EC 48 83 EC 30"
         },
         true
     );
-    //CredUIManager__ShowCredentialView = memory::FindPatternCached<decltype(CredUIManager__ShowCredentialView)>("CredUIManager__ShowCredentialView", "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8B EC");
-    SecurityOptionsView__Destructor = memory::FindPatternCached<decltype(SecurityOptionsView__Destructor)>(
-        "SecurityOptionsView__Destructor",
+    search->Add(
+        HOOK_TARGET_ARGS(SecurityOptionsView__Destructor),
+        "??_ESecurityOptionsView@@UEAAPEAXI@Z",
         {
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 8B F2 48 8B D9 48 8B 79 78 48 83 61 78 00",
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B 79 78 8B F2 48 83 61 78 00 48 8B D9"
         }
     );
 
-    Hook(LogonViewManager__ShowSecurityOptionsUIThread, LogonViewManager__ShowSecurityOptionsUIThread_Hook);
-    Hook(LogonViewManager__ShowSecurityOptions, LogonViewManager__ShowSecurityOptions_Hook);
-    Hook(SecurityOptionControl_RuntimeClassInitialize, SecurityOptionControl_RuntimeClassInitialize_Hook);
-    Hook(SecurityOptionControlHandleKeyInput, SecurityOptionControlHandleKeyInput_Hook);
-    Hook(SecurityOptionControl_Destructor, SecurityOptionControl_Destructor_Hook);
-    Hook(SecurityOptionsView__RuntimeClassInitialize, SecurityOptionsView__RuntimeClassInitialize_Hook);
-    //Hook(CredUIManager__ShowCredentialView, CredUIManager__ShowCredentialView_Hook);
-    Hook(SecurityOptionsView__Destructor, SecurityOptionsView__Destructor_Hook);
+    search->Execute();
 
-    //Hook(ConsoleUIView__Initialize, ConsoleUIView__Initialize_Hook);
+    if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
+    {
+        if (SecurityOptionControlVtable)
+        {
+            SecurityOptionControl_Destructor = (decltype(SecurityOptionControl_Destructor))(SecurityOptionControlVtable[7]);
+        }
+
+        Hook(LogonViewManager__ShowSecurityOptionsUIThread, LogonViewManager__ShowSecurityOptionsUIThread_Hook);
+        Hook(LogonViewManager__ShowSecurityOptions, LogonViewManager__ShowSecurityOptions_Hook);
+        Hook(SecurityOptionControl_RuntimeClassInitialize, SecurityOptionControl_RuntimeClassInitialize_Hook);
+        Hook(SecurityOptionControlHandleKeyInput, SecurityOptionControlHandleKeyInput_Hook);
+        Hook(SecurityOptionControl_Destructor, SecurityOptionControl_Destructor_Hook);
+        Hook(SecurityOptionsView__RuntimeClassInitialize, SecurityOptionsView__RuntimeClassInitialize_Hook);
+        Hook(SecurityOptionsView__Destructor, SecurityOptionsView__Destructor_Hook);
+    }
 }

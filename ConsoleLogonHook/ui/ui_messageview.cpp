@@ -6,6 +6,8 @@
 #include <winstring.h>
 #include <util/interop.h>
 #include <util/memory_man.h>
+#include "util/hooks.h"
+#include "util/hooksprivate.h"
 
 __int64 (__fastcall* MessageOptionControl__v_HandleKeyInput)(void* _this, const struct _KEY_EVENT_RECORD* a2, int* a3);
 
@@ -93,55 +95,64 @@ __int64 MessageOptionControl__Destructor_Hook(void* _this, char a2)
     return MessageOptionControl__Destructor(_this, a2);
 }
 
-void uiMessageView::InitHooks(uintptr_t baseaddress)
+void uiMessageView::InitHooks(IHookSearchHandler *search)
 {
-    MessageView__RuntimeClassInitialize = memory::FindPatternCached<decltype(MessageView__RuntimeClassInitialize)>(
-        "MessageView__RuntimeClassInitialize", 
+    search->Add(
+        HOOK_TARGET_ARGS(MessageView__RuntimeClassInitialize),
+        "?RuntimeClassInitialize@MessageView@@QEAAJPEAUHSTRING__@@0IV?$AsyncDeferral@V?$CMarshaledInterfaceResult@UIMessageDisplayResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@Internal@Windows@@PEAUIUser@CredProvData@Logon@UI@45@@Z",
         {
             "48 89 5C 24 10 48 89 74 24 18 55 57 41 54 41 56 41 57 48 8B EC 48 83 EC 50 41 8B F9",
             "48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D 68 B1 48 81 EC D0 00 00 00"
         }
     );
-    //CredUIViewManager__ShowCredentialView = decltype(CredUIViewManager__ShowCredentialView)(baseaddress + 0x201BC);
-    BasicTextControl__RuntimeClassInitialize1 = memory::FindPatternCached<decltype(BasicTextControl__RuntimeClassInitialize1)>(
-        "BasicTextControl__RuntimeClassInitialize1", 
+    search->Add(
+        HOOK_TARGET_ARGS(BasicTextControl__RuntimeClassInitialize1),
+        "?RuntimeClassInitialize@BasicTextControl@@QEAAJPEAUIConsoleUIView@@PEBG_N@Z",
         { 
             "48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 48 89 78 20 41 56 48 83 EC 20 48 8B F9 44 88 49 58" 
         }
     );
-    BasicTextControl__RuntimeClassInitialize2 = memory::FindPatternCached<decltype(BasicTextControl__RuntimeClassInitialize2)>(
-        "BasicTextControl__RuntimeClassInitialize2", 
+    search->Add(
+        HOOK_TARGET_ARGS(BasicTextControl__RuntimeClassInitialize2),
+        "?RuntimeClassInitialize@BasicTextControl@@QEAAJPEAUIConsoleUIView@@I@Z",
         { 
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B F2 48 8B F9 48 83 C1" 
         }
     );
-    MessageOptionControl__RuntimeClassInitialize = memory::FindPatternCached<decltype(MessageOptionControl__RuntimeClassInitialize)>(
-        "MessageOptionControl__RuntimeClassInitialize", 
+    search->Add(
+        HOOK_TARGET_ARGS(MessageOptionControl__RuntimeClassInitialize),
+        "?RuntimeClassInitialize@MessageOptionControl@@QEAAJPEAUIConsoleUIView@@W4MessageOptionFlag@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UIMessageDisplayResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@Internal@Windows@@@Z",
         { 
             "48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 4C 89 48 20 57 41 56 41 57 48 83 EC 20 49 8B D9 41 8B F8 4C 8B FA 48 8B F1 44 89 41 70",
             "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 20 4C 8B FA 44 89 41 70 48 8B F1"
         }
     );
-    MessageOptionControl__Destructor = memory::FindPatternCached<decltype(MessageOptionControl__Destructor)>(
-        "MessageOptionControl__Destructor", 
+    search->Add(
+        HOOK_TARGET_ARGS(MessageOptionControl__Destructor),
+        "??_GMessageOptionControl@@UEAAPEAXI@Z",
         {
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 8B F2 48 8B D9 48 8B 79 68 48 83 61 68 00",
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B 79 68 8B F2 48 83 61 68 00 48 8B D9"
         }
     );
-    MessageOptionControl__v_HandleKeyInput = memory::FindPatternCached<decltype(MessageOptionControl__v_HandleKeyInput)>(
-        "MessageOptionControl__v_HandleKeyInput", 
+    search->Add(
+        HOOK_TARGET_ARGS(MessageOptionControl__v_HandleKeyInput),
+        "?v_HandleKeyInput@MessageOptionControl@@EEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
         { 
-            "48 89 5C 24 10 55 56 57 41 56 41 57 48 8B EC 48 83 EC 60 48 8B 05 ?? ?? ?? ?? 48 33 C4" 
+            "48 89 5C 24 10 55 56 57 41 56 41 57 48 8B EC 48 83 EC 60 48 8B 05 ?? ?? ?? ?? 48 33 C4"
         }
     );
 
-    Hook(MessageView__RuntimeClassInitialize, MessageView__RuntimeClassInitialize_Hook);
-    //Hook(CredUIViewManager__ShowCredentialView, CredUIViewManager__ShowCredentialView_Hook);
-    Hook(BasicTextControl__RuntimeClassInitialize1, BasicTextControl__RuntimeClassInitialize1_Hook);
-    Hook(BasicTextControl__RuntimeClassInitialize2, BasicTextControl__RuntimeClassInitialize2_Hook);
-    Hook(MessageOptionControl__RuntimeClassInitialize, MessageOptionControl__RuntimeClassInitialize_Hook);
-    Hook(MessageOptionControl__Destructor, MessageOptionControl__Destructor_Hook);
+    search->Execute();
+
+    if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
+    {
+        Hook(MessageView__RuntimeClassInitialize, MessageView__RuntimeClassInitialize_Hook);
+        Hook(BasicTextControl__RuntimeClassInitialize1, BasicTextControl__RuntimeClassInitialize1_Hook);
+        Hook(BasicTextControl__RuntimeClassInitialize2, BasicTextControl__RuntimeClassInitialize2_Hook);
+        Hook(MessageOptionControl__RuntimeClassInitialize, MessageOptionControl__RuntimeClassInitialize_Hook);
+        Hook(MessageOptionControl__Destructor, MessageOptionControl__Destructor_Hook);
+    }
 }
 
 void external::MessageOptionControl_Press(void* actualInstance, const struct _KEY_EVENT_RECORD* keyrecord, int* success)

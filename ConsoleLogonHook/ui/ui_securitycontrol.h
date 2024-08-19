@@ -1,5 +1,6 @@
 #pragma once
 #include <functional>
+#include "util/hooks.h"
 
 //struct SecurityOptionControlWrapper
 //{
@@ -24,5 +25,5 @@ public:
 
     std::vector<std::function<void()>> wasInSecurityControlNotifies;
 
-    static void InitHooks(uintptr_t baseaddress);
+    static void InitHooks(IHookSearchHandler *search);
 };

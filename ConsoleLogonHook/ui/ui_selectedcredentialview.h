@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include "util/hooks.h"
 
 //struct EditControlWrapper
 //{
@@ -17,5 +18,5 @@ class uiSelectedCredentialView
 {
 public:
 
-    static void InitHooks(uintptr_t baseaddress);
+    static void InitHooks(IHookSearchHandler *search);
 };

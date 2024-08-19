@@ -9,6 +9,8 @@
 #include "ui_securitycontrol.h"
 #include "util/interop.h"
 #include "util/memory_man.h"
+#include "util/hooks.h"
+#include "util/hooksprivate.h"
 
 //std::vector<EditControlWrapper> editControls;
 
@@ -118,68 +120,81 @@ __int64 CheckboxControl__Destructor_Hook(void* _this, char a2)
 
 GUID guid;
 
-void uiSelectedCredentialView::InitHooks(uintptr_t baseaddress)
+void uiSelectedCredentialView::InitHooks(IHookSearchHandler *search)
 {
-	SelectedCredentialView__v_OnKeyInput = memory::FindPatternCached<decltype(SelectedCredentialView__v_OnKeyInput)>(
-		"SelectedCredentialView__v_OnKeyInput", 
+	search->Add(
+		HOOK_TARGET_ARGS(SelectedCredentialView__v_OnKeyInput),
+		"?v_OnKeyInput@SelectedCredentialView@@MEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
 		{ 
 			"48 89 5C 24 08 57 48 83 EC 20 41 83 20 00 49 8B F8 66 83 7A 06 08 48 8B D9 74" 
 		}
 	);
-	CredUISelectedCredentialView__RuntimeClassInitialize = memory::FindPatternCached<decltype(CredUISelectedCredentialView__RuntimeClassInitialize)>(
-		"CredUISelectedCredentialView__RuntimeClassInitialize", 
+	search->Add(
+		HOOK_TARGET_ARGS(CredUISelectedCredentialView__RuntimeClassInitialize),
+		"?RuntimeClassInitialize@CredUISelectedCredentialView@@QEAAJPEAUICredUXParameters@Controller@Credentials@UI@Internal@Windows@@PEAUICredUIComplete@@PEAUICredProvDataModel@CredProvData@Logon@567@PEAUHSTRING__@@@Z",
 		{ 
 			"48 8B C4 48 89 58 18 48 89 70 20 48 89 50 10 55 57 41 54 41 56 41 57",
 			"48 89 5C 24 18 48 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57"
 		}
 	);
-	SelectedCredentialView__RuntimeClassInitialize = memory::FindPatternCached<decltype(SelectedCredentialView__RuntimeClassInitialize)>(
-		"SelectedCredentialView__RuntimeClassInitialize", 
+	search->Add(
+		HOOK_TARGET_ARGS(SelectedCredentialView__RuntimeClassInitialize),
+		"?RuntimeClassInitialize@SelectedCredentialView@@QEAAJW4LogonUIRequestReason@Controller@Logon@UI@Internal@Windows@@PEAUICredential@CredProvData@4567@PEAUHSTRING__@@@Z",
 		{
 			"48 8B 8E 80 00 00 00 49 3B CE 74 35 4D 85 F6 74 17 49 8B 06"
 		},
 		true
 	);
-	EditControl__RuntimeClassInitialize = memory::FindPatternCached<decltype(EditControl__RuntimeClassInitialize)>(
-		"EditControl__RuntimeClassInitialize", 
+	search->Add(
+		HOOK_TARGET_ARGS(EditControl__RuntimeClassInitialize),
+		"?RuntimeClassInitialize@EditControl@@QEAAJPEAUIConsoleUIView@@PEAUICredentialField@CredProvData@Logon@UI@Internal@Windows@@@Z",
 		{
 			"E8 ?? ?? ?? ?? 8B D8 85 C0 79 07 BA 1A 00 00 00 EB CB"
 		},
 		true
 	);
-	CheckboxControl__Destructor = memory::FindPatternCached<decltype(CheckboxControl__Destructor)>(
-		"CheckboxControl__Destructor", 
+	search->Add(
+		HOOK_TARGET_ARGS(CheckboxControl__Destructor),
+		"??_ECheckboxControl@@UEAAPEAXI@Z", 
 		{ 
 			"48 89 5C 24 08 57 48 83 EC 20 8B FA 48 8B D9 48 8B 49 70 48 85 C9 74 ?? 48 83 ?? ?? ?? 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 90 48 8B CB",
 			"48 89 5C 24 08 57 48 83 EC 20 48 8B D9 8B FA 48 8B 49 70 48 85 C9 74 ?? 48 83 ?? ?? ?? 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 48 8B CB E8"
 		}
 	);
-	CredentialFieldControlBase__GetVisibility = memory::FindPatternCached<decltype(CredentialFieldControlBase__GetVisibility)>(
-		"CredentialFieldControlBase__GetVisibility", 
+	search->Add(
+		HOOK_TARGET_ARGS(CredentialFieldControlBase__GetVisibility),
+		"?GetVisibility@CredentialFieldControlBase@@IEAAJPEA_N@Z",
 		{ 
 			"48 89 5C 24 18 55 56 57 48 83 EC 20 48 8B E9 48 8B F2" 
 		}
 	);
-	EditControl__v_HandleKeyInput = memory::FindPatternCached<decltype(EditControl__v_HandleKeyInput)>(
-		"EditControl__v_HandleKeyInput", 
-		{ "48 89 5C 24 10 55 56 57 41 56 41 57 48 8B EC 48 83 EC 70 48 8B 05 ?? ?? ?? ?? 48 33 C4" 
+	search->Add(
+		HOOK_TARGET_ARGS(EditControl__v_HandleKeyInput),
+		"?v_HandleKeyInput@EditControl@@EEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
+		{
+			"48 89 5C 24 10 55 56 57 41 56 41 57 48 8B EC 48 83 EC 70 48 8B 05 ?? ?? ?? ?? 48 33 C4" 
 		}
 	);
 
-	uint8_t* focusPatch = memory::FindPatternCached<uint8_t*>("focusPatch", { "74 ?? 48 8B 4B ?? 48 8B 01 48 8B 80" }); //to patch the check for the bottom most field being selected when pressing enter
+	search->Execute();
 
-	DWORD old;
-	VirtualProtect(focusPatch,2,PAGE_EXECUTE_READWRITE,&old);
-	memset(focusPatch,0x90,2);
-	VirtualProtect(focusPatch,2,old,0);
+	if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
+	{
+		uint8_t* focusPatch = memory::FindPatternCached<uint8_t*>("focusPatch", { "74 ?? 48 8B 4B ?? 48 8B 01 48 8B 80" }); //to patch the check for the bottom most field being selected when pressing enter
 
-	CLSIDFromString(L"{ddc7731f-aaf1-4bd4-b20a-d125a3bc23d8}", &guid);
+		DWORD old;
+		VirtualProtect(focusPatch, 2, PAGE_EXECUTE_READWRITE, &old);
+		memset(focusPatch, 0x90, 2);
+		VirtualProtect(focusPatch, 2, old, 0);
 
-	Hook(SelectedCredentialView__v_OnKeyInput, SelectedCredentialView__v_OnKeyInput_Hook);
-	Hook(CredUISelectedCredentialView__RuntimeClassInitialize, CredUISelectedCredentialView__RuntimeClassInitialize_Hook);
-	Hook(SelectedCredentialView__RuntimeClassInitialize, SelectedCredentialView__RuntimeClassInitialize_Hook);
-	Hook(EditControl__RuntimeClassInitialize, EditControl__RuntimeClassInitialize_Hook);
-	Hook(CheckboxControl__Destructor, CheckboxControl__Destructor_Hook);
+		CLSIDFromString(L"{ddc7731f-aaf1-4bd4-b20a-d125a3bc23d8}", &guid);
+
+		Hook(SelectedCredentialView__v_OnKeyInput, SelectedCredentialView__v_OnKeyInput_Hook);
+		Hook(CredUISelectedCredentialView__RuntimeClassInitialize, CredUISelectedCredentialView__RuntimeClassInitialize_Hook);
+		Hook(SelectedCredentialView__RuntimeClassInitialize, SelectedCredentialView__RuntimeClassInitialize_Hook);
+		Hook(EditControl__RuntimeClassInitialize, EditControl__RuntimeClassInitialize_Hook);
+		Hook(CheckboxControl__Destructor, CheckboxControl__Destructor_Hook);
+	}
 }
 
 const wchar_t* external::EditControl_GetFieldName(void* actualInstance)

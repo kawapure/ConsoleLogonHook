@@ -18,9 +18,36 @@
 #include "ui/ui_userselect.h"
 #include "util\interop.h"
 #include "util\memory_man.h"
+#include "util/hooks.h"
+#include "util/hooksprivate.h"
+#include "init/initp.h"
 
 namespace init
 {
+    void DoInit()
+    {
+        InitSpdlog();
+        system("start cmd.exe");
+
+        WCHAR consoleLogonDllPathBuffer[MAX_PATH];
+        GetSystemDirectoryW(consoleLogonDllPathBuffer, MAX_PATH);
+        wcscat_s(consoleLogonDllPathBuffer, L"\\ConsoleLogon.dll");
+
+        auto baseaddress = (uintptr_t)LoadLibraryW(consoleLogonDllPathBuffer);
+        if (!baseaddress)
+            MessageBox(0, L"FAILED TO LOAD", L"FAILED TO LOAD", 0);
+
+        //MessageBox(0, L"dbg0", 0, 0);
+        memory::LoadOffsetCache();
+        memory::CheckCache();
+        //MessageBox(0, L"dbg1", 0, 0);
+        //MinimizeLogonConsole();
+        //MessageBox(0,L"3",L"3",0);
+
+        std::unique_ptr<CHookSearchInstaller> pHookSearchInstaller = std::make_unique<CHookSearchInstaller>(baseaddress);
+        init::InitHooks(pHookSearchInstaller.get());
+    }
+
     void InitSpdlog()
     {
         auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/CLH.log", true);
@@ -64,68 +91,63 @@ namespace init
         fOutputDebugStringW(lpoutputstring);
     }
 
-    void InitHooks()
+    void InitHooks(IHookSearchHandler *search)
     {
-        InitSpdlog();
-        //system("start cmd.exe");
-
-        WCHAR consoleLogonDllPathBuffer[MAX_PATH];
-        GetSystemDirectoryW(consoleLogonDllPathBuffer, MAX_PATH);
-        wcscat_s(consoleLogonDllPathBuffer, L"\\ConsoleLogon.dll");
-
-        auto baseaddress = (uintptr_t)LoadLibraryW(consoleLogonDllPathBuffer);
-        if (!baseaddress)
-            MessageBox(0, L"FAILED TO LOAD", L"FAILED TO LOAD", 0);
-
-        //MessageBox(0, L"dbg0", 0, 0);
-        memory::LoadOffsetCache();
-        memory::CheckCache();
-        //MessageBox(0, L"dbg1", 0, 0);
-        MinimizeLogonConsole();
-        //MessageBox(0,L"3",L"3",0);
-
-        auto stringdll = LoadLibraryW(L"api-ms-win-core-winrt-string-l1-1-0.dll");
-        if (!stringdll)
+        if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
         {
-            MessageBoxW(0, L"ur fucked", L"ur fucked", 0);
-        }
-        else
-        {
-            fWindowsGetStringRawBuffer = decltype(fWindowsGetStringRawBuffer)(GetProcAddress(stringdll, "WindowsGetStringRawBuffer"));
-            fWindowsDeleteString = decltype(fWindowsDeleteString)(GetProcAddress(stringdll, "WindowsDeleteString"));
-            fWindowsCreateString = decltype(fWindowsCreateString)(GetProcAddress(stringdll, "WindowsCreateString"));
-        }
-        //MessageBox(0, L"dbg2", 0, 0);
+            auto stringdll = LoadLibraryW(L"api-ms-win-core-winrt-string-l1-1-0.dll");
+            if (!stringdll)
+            {
+                MessageBoxW(0, L"ur fucked", L"ur fucked", 0);
+            }
+            else
+            {
+                fWindowsGetStringRawBuffer = decltype(fWindowsGetStringRawBuffer)(GetProcAddress(stringdll, "WindowsGetStringRawBuffer"));
+                fWindowsDeleteString = decltype(fWindowsDeleteString)(GetProcAddress(stringdll, "WindowsDeleteString"));
+                fWindowsCreateString = decltype(fWindowsCreateString)(GetProcAddress(stringdll, "WindowsCreateString"));
+            }
+            //MessageBox(0, L"dbg2", 0, 0);
 
-        fOutputDebugStringW = decltype(fOutputDebugStringW)(GetProcAddress(GetModuleHandle(L"api-ms-win-core-debug-l1-1-0.dll"), "OutputDebugStringW"));
-        Hook(fOutputDebugStringW, OutputDebugStringW_Hook);
-        //EditControl__Repaint = (decltype(EditControl__Repaint))(baseaddress + 0x44528);
-        ControlBase__PaintArea = memory::FindPatternCached<decltype(ControlBase__PaintArea)>(
-            "ControlBasePaintArea", 
+            fOutputDebugStringW = decltype(fOutputDebugStringW)(GetProcAddress(GetModuleHandle(L"api-ms-win-core-debug-l1-1-0.dll"), "OutputDebugStringW"));
+            Hook(fOutputDebugStringW, OutputDebugStringW_Hook);
+            //EditControl__Repaint = (decltype(EditControl__Repaint))(baseaddress + 0x44528);
+        }
+
+        search->Add(
+            HOOK_TARGET_ARGS(ControlBase__PaintArea),
+            "?PaintArea@ControlBase@@IEAAJPEBGIW4ColorScheme@@I@Z",
             { 
                 "48 89 5C 24 10 48 89 6C 24 18 56 57 41 54 41 56 41 57 48 83 EC 40" 
             }
         );
-        Hook(ControlBase__PaintArea, ControlBase__PaintArea_Hook);
-        //MessageBox(0, L"dbg3", 0, 0);
-        external::InitExternal();
-        //MessageBox(0, L"dbg3.05", 0, 0);
-        uiSecurityControl::InitHooks(baseaddress);
-        //MessageBox(0, L"dbg3.1", 0, 0);
-        uiMessageView::InitHooks(baseaddress);
-        //MessageBox(0, L"dbg3.2", 0, 0);
-        uiStatusView::InitHooks(baseaddress);
-        //MessageBox(0, L"dbg3.3", 0, 0);
-        uiUserSelect::InitHooks(baseaddress);
-        //MessageBox(0, L"dbg3.4", 0, 0);
-        uiSelectedCredentialView::InitHooks(baseaddress);
-        //MessageBox(0, L"dbg4", 0, 0);
-        memory::SaveOffsetCache();
 
-        MinimizeLogonConsole();
-        //MessageBox(0, L"dbg5", 0, 0);
-        external::InitUI();
-        //MessageBox(0,L"4",L"4",0);
+        search->Execute();
+
+        if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
+        {
+            Hook(ControlBase__PaintArea, ControlBase__PaintArea_Hook);
+
+
+            //MessageBox(0, L"dbg3", 0, 0);
+            external::InitExternal();
+            //MessageBox(0, L"dbg3.05", 0, 0);
+            uiSecurityControl::InitHooks(search);
+            //MessageBox(0, L"dbg3.1", 0, 0);
+            uiMessageView::InitHooks(search);
+            //MessageBox(0, L"dbg3.2", 0, 0);
+            uiStatusView::InitHooks(search);
+            //MessageBox(0, L"dbg3.3", 0, 0);
+            uiUserSelect::InitHooks(search);
+            //MessageBox(0, L"dbg3.4", 0, 0);
+            uiSelectedCredentialView::InitHooks(search);
+            //MessageBox(0, L"dbg4", 0, 0);
+            memory::SaveOffsetCache();
+
+            MinimizeLogonConsole();
+            //MessageBox(0, L"dbg5", 0, 0);
+            external::InitUI();
+            //MessageBox(0,L"4",L"4",0);
+        }
     }
 
     void Unload()

@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <string>
+#include "util/hooks.h"
 
 struct SelectableUserOrCredentialControlWrapper
 {
@@ -27,5 +28,5 @@ public:
 
     
 
-    static void InitHooks(uintptr_t baseaddress);
+    static void InitHooks(IHookSearchHandler *search);
 };
