@@ -12,6 +12,7 @@
 #include <hstring.h>
 #include <pplwin.h>
 #include "init/init.h"
+#include "util/threadsuspensionmanager.h"
 
 HMODULE consoleLogon = 0;
 
@@ -112,6 +113,26 @@ BOOL APIENTRY DllMain( HMODULE hModule,
                        LPVOID lpReserved
                      )
 {
+#if 0
+    static bool bAlreadyStarted = false;
+
+    if (!bAlreadyStarted)
+    {
+        DWORD dwCurrentThreadId = GetCurrentThreadId();
+        CThreadSuspensionManager tsm;
+        tsm.SuspendAllThreadsExceptFor(dwCurrentThreadId);
+
+        while (!IsDebuggerPresent())
+        {
+            Sleep(100);
+        }
+
+        tsm.UnsuspendAllThreads();
+        
+        bAlreadyStarted = true;
+    }
+#endif
+
     switch (ul_reason_for_call)
     {
         case DLL_PROCESS_ATTACH:

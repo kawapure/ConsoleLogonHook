@@ -9,6 +9,10 @@
 #include "util/hooks.h"
 #include "util/hooksprivate.h"
 
+#include <psapi.h>
+#include "wil/win32_helpers.h"
+#include "util/threadsuspensionmanager.h"
+
 //std::vector<SecurityOptionControlWrapper> buttonsList;
 
 inline long(__fastcall* SecurityOptionControlHandleKeyInput)(void* _this, const _KEY_EVENT_RECORD* keyrecord, int* result);
@@ -33,8 +37,48 @@ __int64 __fastcall LogonViewManager__ShowSecurityOptionsUIThread_Hook(unsigned _
 __int64(__fastcall* LogonViewManager__ShowSecurityOptions)(__int64 a1, int a2, __int64* a3);
 __int64 __fastcall LogonViewManager__ShowSecurityOptions_Hook(__int64 a1, int a2, __int64* a3)
 {
+    //bool bHasAttachedBefore = false;
+    //if (!bHasAttachedBefore) while (!IsDebuggerPresent())
+    //    Sleep(100);
+    //bHasAttachedBefore = true;
+
+    //if (IsDebuggerPresent())
+    //{
+    //    CThreadSuspensionManager tsm;
+    //    DWORD dwCurThread = GetCurrentThreadId();
+    //    tsm.SuspendAllThreadsExceptFor(dwCurThread);
+    //    DebugBreak();
+    //}
+
+    HMODULE baseConsoleLogon = GetModuleHandleW(L"C:\\Windows\\System32\\ConsoleLogon.dll");
+    HMODULE baseClh = GetModuleHandleW(L"C:\\Windows\\System32\\ConsoleLogonHook.dll");
+
+    HANDLE hProcess = GetCurrentProcess();
+    HMODULE hModules[1024];
+    DWORD cbNeeded;
+
+    if (EnumProcessModules(hProcess, hModules, sizeof(hModules), &cbNeeded))
+    {
+        for (int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
+        {
+            std::wstring szFileName = wil::GetModuleFileNameW<std::wstring>(hModules[i]);
+            SPDLOG_INFO(
+                L"module {} base address = {:x}",
+                szFileName.c_str(),
+                (uintptr_t)hModules[i]
+            );
+        }
+    }
+
+    CloseHandle(hProcess);
+
+    SPDLOG_INFO("ptr for original function: {:x}", (uintptr_t)LogonViewManager__ShowSecurityOptions);
+    SPDLOG_INFO("ptr for hook function: {:x}", (uintptr_t)LogonViewManager__ShowSecurityOptions_Hook);
+    SPDLOG_INFO("ptr for original function offset in ConsoleLogon binary: {:x}", (uintptr_t)LogonViewManager__ShowSecurityOptions - (uintptr_t)baseConsoleLogon);
+    SPDLOG_INFO("ptr for hook function offset in CLH binary: {:x}", (uintptr_t)LogonViewManager__ShowSecurityOptions_Hook - (uintptr_t)baseClh);
     SPDLOG_INFO("LogonViewManager__ShowSecurityOptions_Hook Called! {} {} {}", (void*)a1, a2, (void*)a3);
 
+    //return S_OK;
     return LogonViewManager__ShowSecurityOptions(a1, a2, a3);
 }
 
@@ -211,7 +255,7 @@ void uiSecurityControl::InitHooks(IHookSearchHandler *search)
 {
     search->Add(
         HOOK_TARGET_ARGS(LogonViewManager__ShowSecurityOptionsUIThread),
-        "?ShowSecurityOptionsUIThread@LogonViewManager@@AEAAJW4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@67@@Z",
+        L"?ShowSecurityOptionsUIThread@LogonViewManager@@AEAAJW4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@67@@Z",
         { 
             "48 8B EC 48 83 EC 40 49 8B F8 8B F2 4C 8B F1 E8" 
         },
@@ -219,7 +263,7 @@ void uiSecurityControl::InitHooks(IHookSearchHandler *search)
     );
     search->Add(
         HOOK_TARGET_ARGS(LogonViewManager__ShowSecurityOptions),
-        "?ShowSecurityOptions@LogonViewManager@@QEAAJW4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@67@@Z",
+        L"?ShowSecurityOptions@LogonViewManager@@QEAAJW4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@67@@Z",
         { 
             "48 89 ?? 28 44 89 ?? 30 ?? 89 ?? 38 ?? 89 73 40 ?? 85 F6 74 10 ?? 8B 06 ?? 8B CE 48 8B 40 08 FF 15" 
         },
@@ -227,7 +271,7 @@ void uiSecurityControl::InitHooks(IHookSearchHandler *search)
     );
     search->Add(
         HOOK_TARGET_ARGS(SecurityOptionControl_RuntimeClassInitialize),
-        "?RuntimeClassInitialize@SecurityOptionControl@@QEAAJPEAUIConsoleUIView@@W4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@78@@Z",
+        L"?RuntimeClassInitialize@SecurityOptionControl@@QEAAJPEAUIConsoleUIView@@W4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@78@@Z",
         {
             "B9 10 00 00 00 E8 ?? ?? ?? ?? 4C 8B F0 48 85 C0 74 22 48 8B 07 49 89 06 48 8B 4F 08 49 89 4E 08 48 85 C9 74 12 48 8B 01"
         },
@@ -235,7 +279,7 @@ void uiSecurityControl::InitHooks(IHookSearchHandler *search)
     );
     search->Add(
         HOOK_TARGET_ARGS(SecurityOptionControlHandleKeyInput),
-        "?v_HandleKeyInput@SecurityOptionControl@@EEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
+        L"?v_HandleKeyInput@SecurityOptionControl@@EEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
         { 
             "48 89 5C 24 10 48 89 74 24 20 55 57 41 56 48 8B EC 48 83 EC 70 48 8B 05 ?? ?? ?? ?? 48 33 C4" 
         }
@@ -263,7 +307,7 @@ void uiSecurityControl::InitHooks(IHookSearchHandler *search)
     {
         search,
         HOOK_TARGET_ARGS(SecurityOptionControlVtable),
-        "??_7SecurityOptionControl@@6B?$Selector@VControlBase@@U?$ImplementsHelper@U?$RuntimeClassFlags@$00@WRL@Microsoft@@$00U?$ImplementsMarker@VControlBase@@@Details@23@UIWeakReferenceSource@@@Details@WRL@Microsoft@@@Details@WRL@Microsoft@@@",
+        L"??_7SecurityOptionControl@@6B?$Selector@VControlBase@@U?$ImplementsHelper@U?$RuntimeClassFlags@$00@WRL@Microsoft@@$00U?$ImplementsMarker@VControlBase@@@Details@23@UIWeakReferenceSource@@@Details@WRL@Microsoft@@@Details@WRL@Microsoft@@@",
         {},
         false,
 
@@ -326,7 +370,7 @@ void uiSecurityControl::InitHooks(IHookSearchHandler *search)
 
     search->Add(
         HOOK_TARGET_ARGS(SecurityOptionsView__RuntimeClassInitialize),
-        "?RuntimeClassInitialize@SecurityOptionsView@@QEAAJW4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@67@@Z",
+        L"?RuntimeClassInitialize@SecurityOptionsView@@QEAAJW4LogonUISecurityOptions@Controller@Logon@UI@Internal@Windows@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UILogonUISecurityOptionsResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@67@@Z",
         {
             "55 56 57 41 56 41 57 48 8B EC 48 83 EC 30 49 8B D8","55 56 57 41 56 41 57 48 8B EC 48 83 EC 30"
         },
@@ -334,7 +378,7 @@ void uiSecurityControl::InitHooks(IHookSearchHandler *search)
     );
     search->Add(
         HOOK_TARGET_ARGS(SecurityOptionsView__Destructor),
-        "??_ESecurityOptionsView@@UEAAPEAXI@Z",
+        L"??_ESecurityOptionsView@@UEAAPEAXI@Z",
         {
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 8B F2 48 8B D9 48 8B 79 78 48 83 61 78 00",
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B 79 78 8B F2 48 83 61 78 00 48 8B D9"
@@ -342,6 +386,17 @@ void uiSecurityControl::InitHooks(IHookSearchHandler *search)
     );
 
     search->Execute();
+
+    uintptr_t fuckyou = (uintptr_t)GetModuleHandleW(L"ConsoleLogon.dll");
+    SPDLOG_INFO("offset of the fucking asshole {:x}", (uintptr_t)LogonViewManager__ShowSecurityOptions - fuckyou);
+
+    //TEST_HOOKSEARCH_RESULT(LogonViewManager__ShowSecurityOptionsUIThread, 164220);
+    //TEST_HOOKSEARCH_RESULT(LogonViewManager__ShowSecurityOptions, 153644);
+    //TEST_HOOKSEARCH_RESULT(SecurityOptionControl_RuntimeClassInitialize, 262680);
+    //TEST_HOOKSEARCH_RESULT(SecurityOptionControlHandleKeyInput, 263504);
+    //TEST_HOOKSEARCH_RESULT(SecurityOptionControlVtable, 262450);
+    //TEST_HOOKSEARCH_RESULT(SecurityOptionsView__RuntimeClassInitialize, 205204);
+    //TEST_HOOKSEARCH_RESULT(SecurityOptionsView__Destructor, 205072);
 
     if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
     {

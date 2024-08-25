@@ -408,13 +408,16 @@
     <ClInclude Include="msdia\sdk\include\diacreate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="msdia\msdia.h">
+    <ClInclude Include="msdia\symbol_enum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="util\hooks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="init\initp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util\threadsuspensionmanager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -464,13 +467,16 @@
     <ClCompile Include="util\util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="msdia\msdia.cpp">
+    <ClCompile Include="msdia\symbol_enum.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="util\hooksprivate.h">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="util\hooks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util\threadsuspensionmanager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -176,7 +176,7 @@
     <ClInclude Include="imgui\stb_image.h" />
     <ClInclude Include="init\init.h" />
     <ClInclude Include="init\initp.h" />
-    <ClInclude Include="msdia\msdia.h" />
+    <ClInclude Include="msdia\symbol_enum.h" />
     <ClInclude Include="msdia\sdk\include\cvconst.h" />
     <ClInclude Include="msdia\sdk\include\dia2.h" />
     <ClInclude Include="msdia\sdk\include\diacreate.h" />
@@ -294,6 +294,7 @@
     <ClInclude Include="util\hooks.h" />
     <ClInclude Include="util\interop.h" />
     <ClInclude Include="util\memory_man.h" />
+    <ClInclude Include="util\threadsuspensionmanager.h" />
     <ClInclude Include="util\util.h" />
   </ItemGroup>
   <ItemGroup>
@@ -311,9 +312,10 @@
     <ClCompile Include="ui\ui_selectedcredentialview.cpp" />
     <ClCompile Include="ui\ui_statusview.cpp" />
     <ClCompile Include="ui\ui_userselect.cpp" />
-    <ClCompile Include="msdia\msdia.cpp" />
+    <ClCompile Include="msdia\symbol_enum.cpp" />
     <ClCompile Include="util\hooks.cpp" />
     <ClCompile Include="util\hooksprivate.h" />
+    <ClCompile Include="util\threadsuspensionmanager.cpp" />
     <ClCompile Include="util\util.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -181,7 +181,7 @@ namespace memory
     static T FindPatternCached(std::string functionName, std::vector<std::string> signatures, bool bFindTop = false)
     {
         uintptr_t base_address = (uintptr_t)GetModuleHandle(L"ConsoleLogon.dll");
-        ////offsetCache.find(functionName);
+        ////offsetCache.find(functionCacheName);
         //
         //for (int i = 0; i < signatures.size(); ++i)
         //{
@@ -204,7 +204,7 @@ namespace memory
             //if (IsBadReadPtr(adr, 8) || (bytes.size() >= 1 && adr[0] != bytes[0] && bytes[0] != -1) || (bytes.size() >= 2 && adr[1] != bytes[1] && bytes[1] != -1) || (bytes.size() >= 3 && adr[2] != bytes[2] && bytes[2] != -1))
             //{
             //    offsetCache.clear();
-            //    return FindPatternCached<T>(functionName,signature, bFindTop);
+            //    return FindPatternCached<T>(functionCacheName,signature, bFindTop);
             //}
             //MessageBoxW(0, std::format(L"{}", (void*)offset).c_str(), 0, 0);
         }

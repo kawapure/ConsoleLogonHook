@@ -50,7 +50,7 @@ namespace init
 
     void InitSpdlog()
     {
-        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>("logs/CLH.log", true);
+        auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_mt>(L"logs/CLH.log", true);
 
         file_sink->set_level(spdlog::level::debug);
         file_sink->set_pattern("[%H:%M:%S] [%! (%s:%#)] %^%l%$: %v");
@@ -115,13 +115,15 @@ namespace init
 
         search->Add(
             HOOK_TARGET_ARGS(ControlBase__PaintArea),
-            "?PaintArea@ControlBase@@IEAAJPEBGIW4ColorScheme@@I@Z",
+            L"?PaintArea@ControlBase@@IEAAJPEBGIW4ColorScheme@@I@Z",
             { 
                 "48 89 5C 24 10 48 89 6C 24 18 56 57 41 54 41 56 41 57 48 83 EC 40" 
             }
         );
 
         search->Execute();
+
+        //TEST_HOOKSEARCH_RESULT(ControlBase__PaintArea, 280008);
 
         if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
         {

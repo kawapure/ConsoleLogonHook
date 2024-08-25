@@ -9,10 +9,15 @@
 #include <vector>
 #include <spdlog/spdlog.h>
 
-#define Hook(a,b) DetourTransactionBegin(); \
-if (a) \
-{DetourAttach(&(PVOID&)a, b);} \
-DetourTransactionCommit();
+#define Hook(a, b)                                                            \
+{                                                                             \
+    if (a)                                                                    \
+    {                                                                         \
+        DetourTransactionBegin();                                             \
+        DetourAttach(&(PVOID &)a, b);                                         \
+        DetourTransactionCommit();                                            \
+    }                                                                         \
+}
 
 inline HRESULT(__stdcall* fWindowsCreateString)(PCWSTR sourceString,UINT32 length,HSTRING* string);
 inline PCWSTR(__stdcall* fWindowsGetStringRawBuffer)(HSTRING string, UINT32* length);

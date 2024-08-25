@@ -99,7 +99,7 @@ void uiMessageView::InitHooks(IHookSearchHandler *search)
 {
     search->Add(
         HOOK_TARGET_ARGS(MessageView__RuntimeClassInitialize),
-        "?RuntimeClassInitialize@MessageView@@QEAAJPEAUHSTRING__@@0IV?$AsyncDeferral@V?$CMarshaledInterfaceResult@UIMessageDisplayResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@Internal@Windows@@PEAUIUser@CredProvData@Logon@UI@45@@Z",
+        L"?RuntimeClassInitialize@MessageView@@QEAAJPEAUHSTRING__@@0IV?$AsyncDeferral@V?$CMarshaledInterfaceResult@UIMessageDisplayResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@Internal@Windows@@PEAUIUser@CredProvData@Logon@UI@45@@Z",
         {
             "48 89 5C 24 10 48 89 74 24 18 55 57 41 54 41 56 41 57 48 8B EC 48 83 EC 50 41 8B F9",
             "48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D 68 B1 48 81 EC D0 00 00 00"
@@ -107,21 +107,21 @@ void uiMessageView::InitHooks(IHookSearchHandler *search)
     );
     search->Add(
         HOOK_TARGET_ARGS(BasicTextControl__RuntimeClassInitialize1),
-        "?RuntimeClassInitialize@BasicTextControl@@QEAAJPEAUIConsoleUIView@@PEBG_N@Z",
+        L"?RuntimeClassInitialize@BasicTextControl@@QEAAJPEAUIConsoleUIView@@PEBG_N@Z",
         { 
             "48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 48 89 78 20 41 56 48 83 EC 20 48 8B F9 44 88 49 58" 
         }
     );
     search->Add(
         HOOK_TARGET_ARGS(BasicTextControl__RuntimeClassInitialize2),
-        "?RuntimeClassInitialize@BasicTextControl@@QEAAJPEAUIConsoleUIView@@I@Z",
+        L"?RuntimeClassInitialize@BasicTextControl@@QEAAJPEAUIConsoleUIView@@I@Z",
         { 
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B F2 48 8B F9 48 83 C1" 
         }
     );
     search->Add(
         HOOK_TARGET_ARGS(MessageOptionControl__RuntimeClassInitialize),
-        "?RuntimeClassInitialize@MessageOptionControl@@QEAAJPEAUIConsoleUIView@@W4MessageOptionFlag@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UIMessageDisplayResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@Internal@Windows@@@Z",
+        L"?RuntimeClassInitialize@MessageOptionControl@@QEAAJPEAUIConsoleUIView@@W4MessageOptionFlag@@V?$AsyncDeferral@V?$CMarshaledInterfaceResult@UIMessageDisplayResult@Controller@Logon@UI@Internal@Windows@@@Internal@Windows@@@Internal@Windows@@@Z",
         { 
             "48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 4C 89 48 20 57 41 56 41 57 48 83 EC 20 49 8B D9 41 8B F8 4C 8B FA 48 8B F1 44 89 41 70",
             "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 20 4C 8B FA 44 89 41 70 48 8B F1"
@@ -129,7 +129,7 @@ void uiMessageView::InitHooks(IHookSearchHandler *search)
     );
     search->Add(
         HOOK_TARGET_ARGS(MessageOptionControl__Destructor),
-        "??_GMessageOptionControl@@UEAAPEAXI@Z",
+        L"??_GMessageOptionControl@@UEAAPEAXI@Z",
         {
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 8B F2 48 8B D9 48 8B 79 68 48 83 61 68 00",
             "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 48 8B 79 68 8B F2 48 83 61 68 00 48 8B D9"
@@ -137,13 +137,19 @@ void uiMessageView::InitHooks(IHookSearchHandler *search)
     );
     search->Add(
         HOOK_TARGET_ARGS(MessageOptionControl__v_HandleKeyInput),
-        "?v_HandleKeyInput@MessageOptionControl@@EEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
+        L"?v_HandleKeyInput@MessageOptionControl@@EEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
         { 
             "48 89 5C 24 10 55 56 57 41 56 41 57 48 8B EC 48 83 EC 60 48 8B 05 ?? ?? ?? ?? 48 33 C4"
         }
     );
 
     search->Execute();
+
+    //TEST_HOOKSEARCH_RESULT(MessageView__RuntimeClassInitialize, 212112);
+    //TEST_HOOKSEARCH_RESULT(BasicTextControl__RuntimeClassInitialize1, 278616);
+    //TEST_HOOKSEARCH_RESULT(BasicTextControl__RuntimeClassInitialize2, 278948);
+    //TEST_HOOKSEARCH_RESULT(MessageOptionControl__RuntimeClassInitialize, 265224);
+    //TEST_HOOKSEARCH_RESULT(MessageOptionControl__Destructor, 262512);
 
     if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
     {

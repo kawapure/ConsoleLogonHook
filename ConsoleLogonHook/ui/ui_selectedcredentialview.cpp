@@ -124,14 +124,14 @@ void uiSelectedCredentialView::InitHooks(IHookSearchHandler *search)
 {
 	search->Add(
 		HOOK_TARGET_ARGS(SelectedCredentialView__v_OnKeyInput),
-		"?v_OnKeyInput@SelectedCredentialView@@MEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
+		L"?v_OnKeyInput@SelectedCredentialView@@MEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
 		{ 
 			"48 89 5C 24 08 57 48 83 EC 20 41 83 20 00 49 8B F8 66 83 7A 06 08 48 8B D9 74" 
 		}
 	);
 	search->Add(
 		HOOK_TARGET_ARGS(CredUISelectedCredentialView__RuntimeClassInitialize),
-		"?RuntimeClassInitialize@CredUISelectedCredentialView@@QEAAJPEAUICredUXParameters@Controller@Credentials@UI@Internal@Windows@@PEAUICredUIComplete@@PEAUICredProvDataModel@CredProvData@Logon@567@PEAUHSTRING__@@@Z",
+		L"?RuntimeClassInitialize@CredUISelectedCredentialView@@QEAAJPEAUICredUXParameters@Controller@Credentials@UI@Internal@Windows@@PEAUICredUIComplete@@PEAUICredProvDataModel@CredProvData@Logon@567@PEAUHSTRING__@@@Z",
 		{ 
 			"48 8B C4 48 89 58 18 48 89 70 20 48 89 50 10 55 57 41 54 41 56 41 57",
 			"48 89 5C 24 18 48 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57"
@@ -139,7 +139,7 @@ void uiSelectedCredentialView::InitHooks(IHookSearchHandler *search)
 	);
 	search->Add(
 		HOOK_TARGET_ARGS(SelectedCredentialView__RuntimeClassInitialize),
-		"?RuntimeClassInitialize@SelectedCredentialView@@QEAAJW4LogonUIRequestReason@Controller@Logon@UI@Internal@Windows@@PEAUICredential@CredProvData@4567@PEAUHSTRING__@@@Z",
+		L"?RuntimeClassInitialize@SelectedCredentialView@@QEAAJW4LogonUIRequestReason@Controller@Logon@UI@Internal@Windows@@PEAUICredential@CredProvData@4567@PEAUHSTRING__@@@Z",
 		{
 			"48 8B 8E 80 00 00 00 49 3B CE 74 35 4D 85 F6 74 17 49 8B 06"
 		},
@@ -147,7 +147,7 @@ void uiSelectedCredentialView::InitHooks(IHookSearchHandler *search)
 	);
 	search->Add(
 		HOOK_TARGET_ARGS(EditControl__RuntimeClassInitialize),
-		"?RuntimeClassInitialize@EditControl@@QEAAJPEAUIConsoleUIView@@PEAUICredentialField@CredProvData@Logon@UI@Internal@Windows@@@Z",
+		L"?RuntimeClassInitialize@EditControl@@QEAAJPEAUIConsoleUIView@@PEAUICredentialField@CredProvData@Logon@UI@Internal@Windows@@@Z",
 		{
 			"E8 ?? ?? ?? ?? 8B D8 85 C0 79 07 BA 1A 00 00 00 EB CB"
 		},
@@ -155,7 +155,7 @@ void uiSelectedCredentialView::InitHooks(IHookSearchHandler *search)
 	);
 	search->Add(
 		HOOK_TARGET_ARGS(CheckboxControl__Destructor),
-		"??_ECheckboxControl@@UEAAPEAXI@Z", 
+		L"??_ECheckboxControl@@UEAAPEAXI@Z", 
 		{ 
 			"48 89 5C 24 08 57 48 83 EC 20 8B FA 48 8B D9 48 8B 49 70 48 85 C9 74 ?? 48 83 ?? ?? ?? 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 90 48 8B CB",
 			"48 89 5C 24 08 57 48 83 EC 20 48 8B D9 8B FA 48 8B 49 70 48 85 C9 74 ?? 48 83 ?? ?? ?? 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 48 8B CB E8"
@@ -163,20 +163,26 @@ void uiSelectedCredentialView::InitHooks(IHookSearchHandler *search)
 	);
 	search->Add(
 		HOOK_TARGET_ARGS(CredentialFieldControlBase__GetVisibility),
-		"?GetVisibility@CredentialFieldControlBase@@IEAAJPEA_N@Z",
+		L"?GetVisibility@CredentialFieldControlBase@@IEAAJPEA_N@Z",
 		{ 
 			"48 89 5C 24 18 55 56 57 48 83 EC 20 48 8B E9 48 8B F2" 
 		}
 	);
 	search->Add(
 		HOOK_TARGET_ARGS(EditControl__v_HandleKeyInput),
-		"?v_HandleKeyInput@EditControl@@EEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
+		L"?v_HandleKeyInput@EditControl@@EEAAJPEBU_KEY_EVENT_RECORD@@PEAH@Z",
 		{
 			"48 89 5C 24 10 55 56 57 41 56 41 57 48 8B EC 48 83 EC 70 48 8B 05 ?? ?? ?? ?? 48 33 C4" 
 		}
 	);
 
 	search->Execute();
+
+	//TEST_HOOKSEARCH_RESULT(SelectedCredentialView__v_OnKeyInput, 211456);
+	//TEST_HOOKSEARCH_RESULT(CredUISelectedCredentialView__RuntimeClassInitialize, 191404);
+	//TEST_HOOKSEARCH_RESULT(SelectedCredentialView__RuntimeClassInitialize, 209344);
+	//TEST_HOOKSEARCH_RESULT(EditControl__RuntimeClassInitialize, 252704);
+	//TEST_HOOKSEARCH_RESULT(CheckboxControl__Destructor, 226956);
 
 	if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
 	{

@@ -77,7 +77,7 @@ void uiStatusView::InitHooks(IHookSearchHandler *search)
     //MessageBoxW(0,L" stat v 1", 0, 0);
     search->Add(
         HOOK_TARGET_ARGS(StatusView__RuntimeClassInitialize),
-        "?RuntimeClassInitialize@StatusView@@QEAAJPEAUHSTRING__@@PEAUIUser@CredProvData@Logon@UI@Internal@Windows@@@Z",
+        L"?RuntimeClassInitialize@StatusView@@QEAAJPEAUHSTRING__@@PEAUIUser@CredProvData@Logon@UI@Internal@Windows@@@Z",
         {
             "48 89 5C 24 10 48 89 74 24 18 55 57 41 56 48 8B EC 48 83 EC 40","48 89 5C 24 10 55 56 57 41 56 41 57 48 8B EC 48 83 EC 60 48 8B F1"
         }
@@ -85,12 +85,17 @@ void uiStatusView::InitHooks(IHookSearchHandler *search)
     //MessageBoxW(0,L" stat v 2", 0, 0);
     search->Add(
         HOOK_TARGET_ARGS(StatusView__Destructor),
-        "??_EStatusView@@UEAAPEAXI@Z",
+        L"??_EStatusView@@UEAAPEAXI@Z",
         { 
             "48 89 5C 24 08 57 48 83 EC 20 8B DA 48 8B F9 E8 ?? ?? ?? ?? F6 C3 01 74 ?? BA 78 00 00 00 48 8B CF E8 ?? ?? ?? ?? 48 8B 5C 24 30" 
         }
     );
     //MessageBoxW(0,L" stat v 3",0,0);
+
+    search->Execute();
+
+    //TEST_HOOKSEARCH_RESULT(StatusView__RuntimeClassInitialize, 211632);
+    //TEST_HOOKSEARCH_RESULT(StatusView__Destructor, 140552);
 
     if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
     {

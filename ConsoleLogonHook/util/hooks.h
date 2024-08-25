@@ -5,13 +5,15 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "msdia/msdia.h"
+#include "msdia/symbol_enum.h"
 
 // Custom HRESULT responses
-#define HOOKSEARCH_S_NOT_APPLICABLE 0x20040200
-#define HOOKSEARCH_S_SYMBOL         0x20040201
-#define HOOKSEARCH_S_PATTERN        0x20040202
-#define HOOKSEARCH_E_NO_MATCH       0xA0040200
+constexpr HRESULT HOOKSEARCH_S_NOT_APPLICABLE = 0x20040200;
+constexpr HRESULT HOOKSEARCH_S_SYMBOL         = 0x20040201;
+constexpr HRESULT HOOKSEARCH_S_PATTERN        = 0x20040202;
+constexpr HRESULT HOOKSEARCH_S_CACHE          = 0x20040203;
+constexpr HRESULT HOOKSEARCH_E_NO_MATCH       = 0xA0040200;
+constexpr HRESULT HOOKSEARCH_E_PENDING_VALUE  = 0xA0040201; // For internal use
 
 struct IHookSearchHandler;
 
@@ -20,7 +22,7 @@ struct HookSearchHandlerParams
 	IHookSearchHandler *pSearchHandler;
 	void **ppvTarget;
 	std::string functionName;
-	LPCSTR diaSymbol;
+	std::wstring diaSymbol;
 	std::vector<std::string> signatures;
 	bool bFindTop;
 	DWORD dwFlags;
@@ -47,7 +49,7 @@ struct IHookSearchHandler
 	virtual HRESULT Add(
 		void **ppvTarget, 
 		std::string functionName, 
-		LPCSTR diaSymbol,
+		std::wstring diaSymbol,
 		std::vector<std::string> signatures, 
 		bool bFindTop = false, 
 		DWORD dwFlags = 0, 
@@ -71,7 +73,7 @@ public:
 	virtual HRESULT Add(
 		void **ppvTarget,
 		std::string functionName,
-		LPCSTR diaSymbol,
+		std::wstring diaSymbol,
 		std::vector<std::string> signatures,
 		bool bFindTop = false,
 		DWORD dwFlags = 0,
@@ -81,18 +83,28 @@ public:
 	virtual HRESULT Execute() override;
 	virtual EHookSearchHandlerType GetType() override;
 
+	HRESULT TryFindCache(std::string functionName, void **ppvTarget);
 	HRESULT TryFindSignatures(std::string functionName, std::vector<std::string> signatures, bool bFindTop, void **ppvTarget);
+	HRESULT TryFindSymbols();
+	HRESULT ResetEngine();
 
 	CHookSearchInstaller(uintptr_t baseAddress);
 	~CHookSearchInstaller();
 
 private:
 	uintptr_t m_baseAddress;
+	DWORD m_installedCacheSearches = 0;
 	DWORD m_installedPatternSearches = 0;
-	std::map<void **, LPCSTR> m_queuedSymbolHooks;
+	bool m_hasPatternSearchedBefore = false;
+	//std::map<void **, std::wstring> m_queuedSymbolHooks;
+
+	struct QueuedSymbolHook;
+
+	std::vector<std::unique_ptr<QueuedSymbolHook>> m_queuedSymbolHooks;
 	
 #ifdef CLH_ENABLE_MSDIA
-	clh::msdia::SymbolEnum *m_pDiaSymbolEnum;
+	bool m_isDiaAvailable = false;
+	clh::msdia::CSymbolEnum *m_pDiaSymbolEnum;
 #endif
 };
 
@@ -109,7 +121,7 @@ public:
 	virtual HRESULT Add(
 		void **ppvTarget,
 		std::string functionName,
-		LPCSTR diaSymbol,
+		std::wstring diaSymbol,
 		std::vector<std::string> signatures,
 		bool bFindTop = false,
 		DWORD dwFlags = 0,

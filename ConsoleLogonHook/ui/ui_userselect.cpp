@@ -215,7 +215,7 @@ void uiUserSelect::InitHooks(IHookSearchHandler *search)
 {
     search->Add(
         HOOK_TARGET_ARGS(UserSelectionView__RuntimeClassInitialize),
-        "?RuntimeClassInitialize@UserSelectionView@@QEAAJPEAUICredProvDataModel@CredProvData@Logon@UI@Internal@Windows@@@Z",
+        L"?RuntimeClassInitialize@UserSelectionView@@QEAAJPEAUICredProvDataModel@CredProvData@Logon@UI@Internal@Windows@@@Z",
         { 
             "49 8B 4E 78 48 3B CE 74 ?? 48 85 F6 74 14 48 8B 06 48 8B CE 48 8B 40 08 FF 15" 
         },
@@ -223,21 +223,21 @@ void uiUserSelect::InitHooks(IHookSearchHandler *search)
     );
     search->Add(
         HOOK_TARGET_ARGS(SelectableUserOrCredentialControl__RuntimeClassInitialize),
-        "?RuntimeClassInitialize@SelectableUserOrCredentialControl@@QEAAJPEAUIConsoleUIView@@PEAUIInspectable@@@Z",
+        L"?RuntimeClassInitialize@SelectableUserOrCredentialControl@@QEAAJPEAUIConsoleUIView@@PEAUIInspectable@@@Z",
         { 
             "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8D 79 58" 
         }
     );
     search->Add(
         HOOK_TARGET_ARGS(CredProvSelectionView__RuntimeClassInitialize),
-        "?RuntimeClassInitialize@CredProvSelectionView@@QEAAJPEAUICredentialGroup@CredProvData@Logon@UI@Internal@Windows@@PEAUHSTRING__@@_N@Z",
+        L"?RuntimeClassInitialize@CredProvSelectionView@@QEAAJPEAUICredentialGroup@CredProvData@Logon@UI@Internal@Windows@@PEAUHSTRING__@@_N@Z",
         { 
             "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 56 41 57 48 8B EC 48 83 EC 60" 
         }
     );
     search->Add(
         HOOK_TARGET_ARGS(SelectableUserOrCredentialControl_Destructor),
-        "??_ESelectableUserOrCredentialControl@@UEAAPEAXI@Z",
+        L"??_ESelectableUserOrCredentialControl@@UEAAPEAXI@Z",
         { 
             "48 89 5C 24 08 57 48 83 EC 20 8B FA 48 8B D9 48 8B 49 58 48 85 C9 74 13 48 83 63 58 00 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 90 48 8B 4B 50 48 85 C9 74 13 48 83 63 50 00 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 90 48 8B CB",
             "48 89 5C 24 08 57 48 83 EC 20 48 8B D9 8B FA 48 8B 49 58 48 85 C9 74 ?? 48 83 63 58 00 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 48 8B 4B 50 48 85 C9 74 ?? 48 83 63 50 00 48 8B 01 48 8B 40 10 FF 15 ?? ?? ?? ?? 48 8B CB"
@@ -246,9 +246,9 @@ void uiUserSelect::InitHooks(IHookSearchHandler *search)
     //UserSelectionView__v_OnKeyInput = memory::FindPatternCached<decltype(UserSelectionView__v_OnKeyInput)>("UserSelectionView__v_OnKeyInput", { "40 55 53 56 57 41 56 48 8B EC 48 83 EC 20 49 8B F8 48 8B F1 41 83 20 00 66 83 7A 06 0D" });
 
     search->Add(
-        (void **)globals::ConsoleUIView__Initialize,
+        (void **)&globals::ConsoleUIView__Initialize,
         "ConsoleUIView__Initialize",
-        "?Initialize@ConsoleUIView@@QEAAJXZ",
+        L"?Initialize@ConsoleUIView@@QEAAJXZ",
         {
             "48 89 5C 24 08 57 48 83 EC 30 83 64 24 48 00",
             "48 83 60 D8 00 41 B9 01 00 00 00 4C 8B F1 45 33 C0 B9 00 00 00 C0 ?? ?? ?? ?? FF 15 ?? ?? ?? ?? 48 8B D8"
@@ -256,9 +256,9 @@ void uiUserSelect::InitHooks(IHookSearchHandler *search)
         true
     );
     search->Add(
-        (void **)globals::ConsoleUIView__HandleKeyInput,
+        (void **)&globals::ConsoleUIView__HandleKeyInput,
         "ConsoleUIView__HandleKeyInput",
-        "?HandleKeyInput@ConsoleUIView@@UEAAJPEBU_KEY_EVENT_RECORD@@@Z",
+        L"?HandleKeyInput@ConsoleUIView@@UEAAJPEBU_KEY_EVENT_RECORD@@@Z",
         {
             "48 89 5C 24 10 48 89 74 24 18 57 48 83 EC 20 83 64 24 30 00 48 8B FA"
         }
@@ -266,12 +266,21 @@ void uiUserSelect::InitHooks(IHookSearchHandler *search)
 
     search->Add(
         HOOK_TARGET_ARGS(LogonViewManager__Lock),
-        "?Lock@LogonViewManager@@QEAAJW4LogonUIRequestReason@Controller@Logon@UI@Internal@Windows@@EPEAUHSTRING__@@PEAUIUnlockTrigger@34567@@Z",
+        L"?Lock@LogonViewManager@@QEAAJW4LogonUIRequestReason@Controller@Logon@UI@Internal@Windows@@EPEAUHSTRING__@@PEAUIUnlockTrigger@34567@@Z",
         { 
             "48 89 5C 24 18 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 70 49 8B F9 45 8A E8 8B F2",
             "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 40 4C 8B F9"
         }
     );
+
+    search->Execute();
+
+    //TEST_HOOKSEARCH_RESULT(LogonViewManager__Lock, 150060);
+    //TEST_HOOKSEARCH_RESULT(UserSelectionView__RuntimeClassInitialize, 207824);
+    //TEST_HOOKSEARCH_RESULT(SelectableUserOrCredentialControl__RuntimeClassInitialize, 261108);
+    //TEST_HOOKSEARCH_RESULT(CredProvSelectionView__RuntimeClassInitialize, 198944);
+    //TEST_HOOKSEARCH_RESULT(SelectableUserOrCredentialControl_Destructor, 202376);
+    ////TEST_HOOKSEARCH_RESULT(globals::ConsoleUIView__Initialize, 150060);
 
     if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
     {
