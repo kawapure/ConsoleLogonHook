@@ -2,7 +2,7 @@
 #include <string>
 #include "util/hooks.h"
 
-class uiStatusView
+class CUiStatusView
 {
 public:
 

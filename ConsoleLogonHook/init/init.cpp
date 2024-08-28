@@ -133,15 +133,15 @@ namespace init
             //MessageBox(0, L"dbg3", 0, 0);
             external::InitExternal();
             //MessageBox(0, L"dbg3.05", 0, 0);
-            uiSecurityControl::InitHooks(search);
+            CUiSecurityControl::InitHooks(search);
             //MessageBox(0, L"dbg3.1", 0, 0);
-            uiMessageView::InitHooks(search);
+            CUiMessageView::InitHooks(search);
             //MessageBox(0, L"dbg3.2", 0, 0);
-            uiStatusView::InitHooks(search);
+            CUiStatusView::InitHooks(search);
             //MessageBox(0, L"dbg3.3", 0, 0);
-            uiUserSelect::InitHooks(search);
+            CUiUserSelect::InitHooks(search);
             //MessageBox(0, L"dbg3.4", 0, 0);
-            uiSelectedCredentialView::InitHooks(search);
+            CUiSelectedCredentialView::InitHooks(search);
             //MessageBox(0, L"dbg4", 0, 0);
             memory::SaveOffsetCache();
 

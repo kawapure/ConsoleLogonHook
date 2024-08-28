@@ -22,7 +22,7 @@ public:
 
 inline HANDLE uiUserSelectThreadHandle;
 
-static class uiUserSelect
+static class CUiUserSelect
 {
 public:
 

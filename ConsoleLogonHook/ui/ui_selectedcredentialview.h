@@ -14,7 +14,7 @@
 //    bool isVisible();
 //};
 
-class uiSelectedCredentialView
+class CUiSelectedCredentialView
 {
 public:
 

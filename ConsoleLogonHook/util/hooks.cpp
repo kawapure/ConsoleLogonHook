@@ -434,13 +434,13 @@ HRESULT CHookSearchInstaller::TryFindSymbols()
 							{
 								uintptr_t cacheAddress = (uintptr_t)symbol->address - m_baseAddress;
 
-								memory::offsetCache.push_back(
+								memory::g_offsetCache.push_back(
 									std::pair<std::string, uintptr_t>(
 										queuedHook->functionCacheName,
 										cacheAddress
 									)
 								);
-								memory::bIsDirty = true;
+								memory::g_bIsDirty = true;
 							}
 						}
 						else

@@ -29,7 +29,7 @@ namespace globals
     inline __int64(__fastcall* ConsoleUIView__Initialize)(void* _this);
     inline __int64(__fastcall* ConsoleUIView__HandleKeyInput)(void* _this, const _KEY_EVENT_RECORD* a2);
 
-    inline bool wasInSelectedCredentialView;
+    inline bool g_wasInSelectedCredentialView;
 };
 
 static std::string ws2s(const std::wstring& s)

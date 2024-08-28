@@ -6,7 +6,7 @@
 #include "spdlog/sinks/stdout_color_sinks.h"
 #include "spdlog/fwd.h"
 
-struct log_message
+struct LogMessage
 {
 	std::string msg;
 	spdlog::level::level_enum level;
@@ -14,24 +14,24 @@ struct log_message
 
 namespace log_global
 {
-	inline bool should_console_scroll_down = false;
-	inline std::vector<log_message> logs;
+	inline bool g_shouldConsoleScrollDown = false;
+	inline std::vector<LogMessage> g_logs;
 }
 
 template<typename Mutex>
-class ui_sink : public spdlog::sinks::base_sink<Mutex>
+class CUiSink : public spdlog::sinks::base_sink<Mutex>
 {
 public:
-	explicit ui_sink() {}
+	explicit CUiSink() {}
 protected:
 	void sink_it_(const spdlog::details::log_msg& msg) override
 	{
-		log_global::should_console_scroll_down = true;
+		log_global::g_shouldConsoleScrollDown = true;
 
 		spdlog::memory_buf_t formatted;
 		spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
 
-		log_global::logs.push_back({
+		log_global::g_logs.push_back({
 			fmt::to_string(formatted),
 			msg.level
 			});
@@ -44,5 +44,5 @@ protected:
 
 #include "spdlog/details/null_mutex.h"
 #include <mutex>
-using ui_sink_mt = ui_sink<std::mutex>;
-using ui_sink_st = ui_sink<spdlog::details::null_mutex>;
+using ui_sink_mt = CUiSink<std::mutex>;
+using ui_sink_st = CUiSink<spdlog::details::null_mutex>;

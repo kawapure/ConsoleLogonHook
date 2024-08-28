@@ -11,24 +11,24 @@
 
 namespace memory
 {
-    inline const int VersionNumber = 105;
-    inline const std::string offsetCacheFileName = "ConsoleLogonHookOffsetCache.txt";
+    inline const int kVersionNumber = 105;
+    inline const std::string kOffsetCacheFileName = "ConsoleLogonHookOffsetCache.txt";
 
-    inline std::vector<std::pair<std::string, uintptr_t>> offsetCache;
-    inline bool bIsDirty = false;
+    inline std::vector<std::pair<std::string, uintptr_t>> g_offsetCache;
+    inline bool g_bIsDirty = false;
 
     static void LoadOffsetCache()
     {
         //return;
-        offsetCache.clear();
+        g_offsetCache.clear();
 
-        if (!PathFileExistsA(offsetCacheFileName.c_str()))
+        if (!PathFileExistsA(kOffsetCacheFileName.c_str()))
         {
             //MessageBoxW(0,L"File no exist",L"",0);
             return;
         }
 
-        std::ifstream file(offsetCacheFileName);
+        std::ifstream file(kOffsetCacheFileName);
 
         if (file.is_open())
         {
@@ -39,7 +39,7 @@ namespace memory
                 {
                     auto splitted = split(line, ":");
                     if (splitted.size() >= 2)
-                        offsetCache.push_back(std::pair<std::string,uintptr_t>(splitted[0], std::clamp<uintptr_t>(std::stoll(splitted[1]),0,INT_MAX)));
+                        g_offsetCache.push_back(std::pair<std::string,uintptr_t>(splitted[0], std::clamp<uintptr_t>(std::stoll(splitted[1]),0,INT_MAX)));
                 }
             }
         }
@@ -49,19 +49,19 @@ namespace memory
     static void SaveOffsetCache()
     {
         //return;
-        SPDLOG_INFO("is dirty {}",(int)bIsDirty);
-        if (!bIsDirty) return;
+        SPDLOG_INFO("is dirty {}",(int)g_bIsDirty);
+        if (!g_bIsDirty) return;
 
-        std::ofstream file(offsetCacheFileName);
+        std::ofstream file(kOffsetCacheFileName);
 
-        file << "VersionNumber" << ":" << VersionNumber << "\n";
+        file << "VersionNumber" << ":" << kVersionNumber << "\n";
 
-        for (int i = 0; i < offsetCache.size(); ++i)
+        for (int i = 0; i < g_offsetCache.size(); ++i)
         {
-            file << offsetCache[i].first << ":" << offsetCache[i].second << "\n";
+            file << g_offsetCache[i].first << ":" << g_offsetCache[i].second << "\n";
         }
 
-        //for (auto it = offsetCache.begin(); it != offsetCache.end(); ++it)
+        //for (auto it = g_offsetCache.begin(); it != g_offsetCache.end(); ++it)
         //{
         //    file << (*it).first << ":" << (*it).second << "\n";
         //}
@@ -71,9 +71,9 @@ namespace memory
 
     static uintptr_t FindInOffsetCache(std::string functionName)
     {
-        for (int i = 0; i < offsetCache.size(); ++i)
+        for (int i = 0; i < g_offsetCache.size(); ++i)
         {
-            auto pair = offsetCache[i];
+            auto pair = g_offsetCache[i];
             if (pair.first == functionName)
                 return pair.second;
         }
@@ -181,7 +181,7 @@ namespace memory
     static T FindPatternCached(std::string functionName, std::vector<std::string> signatures, bool bFindTop = false)
     {
         uintptr_t base_address = (uintptr_t)GetModuleHandle(L"ConsoleLogon.dll");
-        ////offsetCache.find(functionCacheName);
+        ////g_offsetCache.find(functionCacheName);
         //
         //for (int i = 0; i < signatures.size(); ++i)
         //{
@@ -203,7 +203,7 @@ namespace memory
             //uint8_t* adr = (uint8_t*)(base_address + offset);
             //if (IsBadReadPtr(adr, 8) || (bytes.size() >= 1 && adr[0] != bytes[0] && bytes[0] != -1) || (bytes.size() >= 2 && adr[1] != bytes[1] && bytes[1] != -1) || (bytes.size() >= 3 && adr[2] != bytes[2] && bytes[2] != -1))
             //{
-            //    offsetCache.clear();
+            //    g_offsetCache.clear();
             //    return FindPatternCached<T>(functionCacheName,signature, bFindTop);
             //}
             //MessageBoxW(0, std::format(L"{}", (void*)offset).c_str(), 0, 0);
@@ -221,8 +221,8 @@ namespace memory
                     continue;
                 }
                 SPDLOG_INFO("pushing back {} {}",functionName, (uintptr_t)(address - base_address));
-                offsetCache.push_back(std::pair<std::string,uintptr_t>(functionName, (uintptr_t)(address - base_address)));
-                bIsDirty = true;
+                g_offsetCache.push_back(std::pair<std::string,uintptr_t>(functionName, (uintptr_t)(address - base_address)));
+                g_bIsDirty = true;
                 return (T)(address);
             }
             
@@ -235,9 +235,9 @@ namespace memory
     static void CheckCache()
     {
         uintptr_t savedVersion = FindInOffsetCache("VersionNumber");
-        if (savedVersion != VersionNumber)
+        if (savedVersion != kVersionNumber)
         {
-            offsetCache.clear();
+            g_offsetCache.clear();
             SPDLOG_INFO("Version Number does not match! clearing offset cache");
         }
         //return;
@@ -245,7 +245,7 @@ namespace memory
         auto SecurityOptionsView__RuntimeClassIntialise = FindPatternCached<uint8_t*>("SecurityOptionsViewRuntimeClassIntialise", { "55 56 57 41 56 41 57 48 8B EC 48 83 EC 30" });
         if (IsBadReadPtr(SecurityOptionsView__RuntimeClassIntialise,8) || SecurityOptionsView__RuntimeClassIntialise[0] != 0x55 || SecurityOptionsView__RuntimeClassIntialise[1] != 0x56 || SecurityOptionsView__RuntimeClassIntialise[2] != 0x57)
         {
-            offsetCache.clear();
+            g_offsetCache.clear();
             SecurityOptionsView__RuntimeClassIntialise = FindPatternCached<uint8_t*>("SecurityOptionsViewRuntimeClassIntialise", { "55 56 57 41 56 41 57 48 8B EC 48 83 EC 30" });
             if (!SecurityOptionsView__RuntimeClassIntialise)
                 MessageBoxW(0,L"SecurityOptionsView__RuntimeClassIntialise pattern Broke!",0,0);

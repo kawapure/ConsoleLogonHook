@@ -1,16 +1,16 @@
 #pragma once
 #include <windows.h>
 
-#define EXTERNAL(a,b) (a)(GetProcAddress(externalUiModule, b))
+#define EXTERNAL(a,b) (a)(GetProcAddress(g_externalUiModule, b))
 
 namespace external
 {
-    inline HMODULE externalUiModule = 0;
+    inline HMODULE g_externalUiModule = 0;
 
     static bool InitExternal()
     {
-        externalUiModule = LoadLibraryW(L"ConsoleLogonUI.dll");
-        if (!externalUiModule)
+        g_externalUiModule = LoadLibraryW(L"ConsoleLogonUI.dll");
+        if (!g_externalUiModule)
         {
             MessageBox(0, L"UI DLL NOT FOUND", L"UI DLL NOT FOUND", MB_ICONERROR);
             return false;
@@ -20,7 +20,7 @@ namespace external
 
     static void Unload()
     {
-        FreeLibraryAndExitThread(externalUiModule,0);
+        FreeLibraryAndExitThread(g_externalUiModule,0);
     }
 
     static void InitUI()

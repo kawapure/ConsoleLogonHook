@@ -95,7 +95,7 @@ __int64 MessageOptionControl__Destructor_Hook(void* _this, char a2)
     return MessageOptionControl__Destructor(_this, a2);
 }
 
-void uiMessageView::InitHooks(IHookSearchHandler *search)
+void CUiMessageView::InitHooks(IHookSearchHandler *search)
 {
     search->Add(
         HOOK_TARGET_ARGS(MessageView__RuntimeClassInitialize),
