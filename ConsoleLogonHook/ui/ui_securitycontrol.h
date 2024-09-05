@@ -19,11 +19,11 @@
 //    void Press();
 //};
 
-class CUiSecurityControl
+class CSecurityControl
 {
 public:
 
-    std::vector<std::function<void()>> g_wasInSecurityControlNotifies;
+    std::vector<std::function<void()>> m_wasInSecurityControlNotifies;
 
     static void InitHooks(IHookSearchHandler *search);
 };

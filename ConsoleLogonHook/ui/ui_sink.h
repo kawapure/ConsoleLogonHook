@@ -14,8 +14,8 @@ struct LogMessage
 
 namespace log_global
 {
-	inline bool g_shouldConsoleScrollDown = false;
-	inline std::vector<LogMessage> g_logs;
+	inline bool shouldConsoleScrollDown = false;
+	inline std::vector<LogMessage> logs;
 }
 
 template<typename Mutex>
@@ -26,12 +26,12 @@ public:
 protected:
 	void sink_it_(const spdlog::details::log_msg& msg) override
 	{
-		log_global::g_shouldConsoleScrollDown = true;
+		log_global::shouldConsoleScrollDown = true;
 
 		spdlog::memory_buf_t formatted;
 		spdlog::sinks::base_sink<Mutex>::formatter_->format(msg, formatted);
 
-		log_global::g_logs.push_back({
+		log_global::logs.push_back({
 			fmt::to_string(formatted),
 			msg.level
 			});

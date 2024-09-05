@@ -22,7 +22,7 @@ __int64 StatusView__RuntimeClassInitialize_Hook(/*StatusView*/void* _this, HSTRI
 
     external::StatusView_SetActive(text);
 
-    //auto statusview = uiRenderer::Get()->GetWindowOfTypeId<CUiStatusView>(4);
+    //auto statusview = uiRenderer::Get()->GetWindowOfTypeId<CStatusView>(4);
     //if (statusview)
     //{
     //    SPDLOG_INFO("Setting active status view instance");
@@ -59,7 +59,7 @@ void* (__fastcall* StatusView__Destructor)(/*StatusView*/void* _this, char a2);
 void* StatusView__Destructor_Hook(void* _this, char a2)
 {
     //this has issues during windows update shit, works fine elsewhere
-    /*auto statusview = uiRenderer::Get()->GetWindowOfTypeId<CUiStatusView>(4);
+    /*auto statusview = uiRenderer::Get()->GetWindowOfTypeId<CStatusView>(4);
     if (statusview)
     {
         SPDLOG_INFO("setting inactive status view instance");
@@ -72,7 +72,7 @@ void* StatusView__Destructor_Hook(void* _this, char a2)
     return StatusView__Destructor(_this,a2);
 }
 
-void CUiStatusView::InitHooks(IHookSearchHandler *search)
+void CStatusView::InitHooks(IHookSearchHandler *search)
 {
     //MessageBoxW(0,L" stat v 1", 0, 0);
     search->Add(

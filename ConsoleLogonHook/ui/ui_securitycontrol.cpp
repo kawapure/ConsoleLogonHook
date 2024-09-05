@@ -92,7 +92,7 @@ __int64 __fastcall SecurityOptionsView__RuntimeClassInitialize_Hook(__int64 a1, 
         auto& window = uiRenderer::Get()->inactiveWindows[i];
         if (window->windowTypeId == 2) //typeid for securityoptions
         {
-            auto& notifies = reinterpret_cast<CUiSecurityControl*>(window.get())->g_wasInSecurityControlNotifies;
+            auto& notifies = reinterpret_cast<CSecurityControl*>(window.get())->m_wasInSecurityControlNotifies;
             for (int x = 0; x < notifies.size(); ++x)
             {
                 auto& notify = notifies[x];
@@ -213,7 +213,7 @@ __int64 CredUIManager__ShowCredentialView_Hook(void* _this, HSTRING a2)
 __int64(__fastcall* SecurityOptionsView__Destructor)(__int64 a1, char a2);
 __int64 SecurityOptionsView__Destructor_Hook(__int64 a1, char a2)
 {
-    //auto securityControl = uiRenderer::Get()->GetWindowOfTypeId<CUiSecurityControl>(2);
+    //auto securityControl = uiRenderer::Get()->GetWindowOfTypeId<CSecurityControl>(2);
     //if (securityControl)
     //{
     //    SPDLOG_INFO("setting inactive security control instance");
@@ -251,7 +251,7 @@ const wchar_t* external::SecurityOptionControl_getString(void* actualInstance)
     }
 }*/
 
-void CUiSecurityControl::InitHooks(IHookSearchHandler *search)
+void CSecurityControl::InitHooks(IHookSearchHandler *search)
 {
     search->Add(
         HOOK_TARGET_ARGS(LogonViewManager__ShowSecurityOptionsUIThread),

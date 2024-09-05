@@ -133,15 +133,15 @@ namespace init
             //MessageBox(0, L"dbg3", 0, 0);
             external::InitExternal();
             //MessageBox(0, L"dbg3.05", 0, 0);
-            CUiSecurityControl::InitHooks(search);
+            CSecurityControl::InitHooks(search);
             //MessageBox(0, L"dbg3.1", 0, 0);
-            CUiMessageView::InitHooks(search);
+            CMessageView::InitHooks(search);
             //MessageBox(0, L"dbg3.2", 0, 0);
-            CUiStatusView::InitHooks(search);
+            CStatusView::InitHooks(search);
             //MessageBox(0, L"dbg3.3", 0, 0);
-            CUiUserSelect::InitHooks(search);
+            CUserSelect::InitHooks(search);
             //MessageBox(0, L"dbg3.4", 0, 0);
-            CUiSelectedCredentialView::InitHooks(search);
+            CSelectedCredentialView::InitHooks(search);
             //MessageBox(0, L"dbg4", 0, 0);
             memory::SaveOffsetCache();
 
@@ -154,7 +154,7 @@ namespace init
 
     void Unload()
     {
-        TerminateThread(uiUserSelectThreadHandle, 0);
+        TerminateThread(g_uiUserSelectThreadHandle, 0);
         external::Unload();
     }
 }

@@ -2,7 +2,7 @@
 #include <string>
 #include "util/hooks.h"
 
-class CUiMessageView
+class CMessageView
 {
 public:
 

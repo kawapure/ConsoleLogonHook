@@ -22,9 +22,9 @@ __int64 SelectedCredentialView__v_OnKeyInput_Hook(void* _this, const struct _KEY
 {
     if (a2->wVirtualKeyCode == VK_ESCAPE || a2->wVirtualKeyCode == VK_BACK)
     {
-        //uiRenderer::Get()->GetWindowOfTypeId<CUiUserSelect>(5)->g_wasInSelectedCredentialView = true;
+        //uiRenderer::Get()->GetWindowOfTypeId<CUserSelect>(5)->wasInSelectedCredentialView = true;
 		external::NotifyWasInSelectedCredentialView();
-		globals::g_wasInSelectedCredentialView = true;
+		globals::wasInSelectedCredentialView = true;
     }
 
     SPDLOG_INFO("SelectedCredentialView__v_OnKeyInput_Hook");
@@ -47,7 +47,7 @@ __int64 (__fastcall* SelectedCredentialView__RuntimeClassInitialize)(void* a1, i
 __int64 SelectedCredentialView__RuntimeClassInitialize_Hook(void* a1, int flag, __int64 a3, HSTRING a4)
 {
 
-	//auto selectedCredentialView = uiRenderer::Get()->GetWindowOfTypeId<CUiSelectedCredentialView>(6);
+	//auto selectedCredentialView = uiRenderer::Get()->GetWindowOfTypeId<CSelectedCredentialView>(6);
 	//selectedCredentialView->SetInactive();
 	//editControls.clear();
 
@@ -120,7 +120,7 @@ __int64 CheckboxControl__Destructor_Hook(void* _this, char a2)
 
 GUID guid;
 
-void CUiSelectedCredentialView::InitHooks(IHookSearchHandler *search)
+void CSelectedCredentialView::InitHooks(IHookSearchHandler *search)
 {
 	search->Add(
 		HOOK_TARGET_ARGS(SelectedCredentialView__v_OnKeyInput),

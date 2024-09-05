@@ -26,7 +26,7 @@ __int64 UserSelectionView__RuntimeClassInitialize_Hook(void* _this, void* a2)
     SPDLOG_INFO("UserSelectionView__RuntimeClassInitialize_Hook a2 [{}]", a2);
     UserSelectionView = _this;
 
-    /*auto userSelect = uiRenderer::Get()->GetWindowOfTypeId<CUiUserSelect>(5);
+    /*auto userSelect = uiRenderer::Get()->GetWindowOfTypeId<CUserSelect>(5);
     if (userSelect)
     {
         SPDLOG_INFO("Setting active status userSelect");
@@ -77,11 +77,11 @@ __int64 SelectableUserOrCredentialControl__RuntimeClassInitialize_Hook(void* _th
     {
         if (choiceIteration == signInOptionChoice)
         {
-			//auto userSelect = uiRenderer::Get()->GetWindowOfTypeId<CUiUserSelect>(5);
-            if (globals::g_wasInSelectedCredentialView)
+			//auto userSelect = uiRenderer::Get()->GetWindowOfTypeId<CUserSelect>(5);
+            if (globals::wasInSelectedCredentialView)
             {
                 wrapper.virtualKeyCodeToPress = VK_ESCAPE;
-                globals::g_wasInSelectedCredentialView = false;
+                globals::wasInSelectedCredentialView = false;
             }
             wrapper.markedPressed = true; // it wont work if we press here, so we defer it till it do work
             wrapper.tickMarkedPressed = GetTickCount64();
@@ -145,12 +145,12 @@ void* SelectableUserOrCredentialControl_Destructor_Hook(void* _this, char a2)
         auto& button = buttons[i];
         if (button.actualInstance == _this)
         {
-			//auto userSelect = uiRenderer::Get()->GetWindowOfTypeId<CUiUserSelect>(5);
-            if (globals::g_wasInSelectedCredentialView)
+			//auto userSelect = uiRenderer::Get()->GetWindowOfTypeId<CUserSelect>(5);
+            if (globals::wasInSelectedCredentialView)
             {
                 button.virtualKeyCodeToPress = VK_ESCAPE;
                 button.markedPressed = false;
-                globals::g_wasInSelectedCredentialView = false;
+                globals::wasInSelectedCredentialView = false;
             }
 
             SPDLOG_INFO("Found button instance and removing!");
@@ -211,7 +211,7 @@ DWORD WINAPI TickThread(LPVOID lparam)
     return 0;
 }
 
-void CUiUserSelect::InitHooks(IHookSearchHandler *search)
+void CUserSelect::InitHooks(IHookSearchHandler *search)
 {
     search->Add(
         HOOK_TARGET_ARGS(UserSelectionView__RuntimeClassInitialize),
@@ -292,7 +292,7 @@ void CUiUserSelect::InitHooks(IHookSearchHandler *search)
         Hook(SelectableUserOrCredentialControl_Destructor, SelectableUserOrCredentialControl_Destructor_Hook);
         Hook(globals::ConsoleUIView__Initialize, ConsoleUIView__Initialize_Hook);
 
-        uiUserSelectThreadHandle = CreateThread(0, 0, TickThread, 0, 0, 0);
+        g_uiUserSelectThreadHandle = CreateThread(0, 0, TickThread, 0, 0, 0);
     }
 }
 

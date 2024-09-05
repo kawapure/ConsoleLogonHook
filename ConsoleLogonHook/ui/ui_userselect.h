@@ -20,9 +20,9 @@ public:
     bool isCredentialControl();
 };
 
-inline HANDLE uiUserSelectThreadHandle;
+inline HANDLE g_uiUserSelectThreadHandle;
 
-static class CUiUserSelect
+static class CUserSelect
 {
 public:
 
