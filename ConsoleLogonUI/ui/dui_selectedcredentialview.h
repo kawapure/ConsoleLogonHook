@@ -14,11 +14,11 @@ struct EditControlWrapper
     bool isVisible();
 };
 
-class duiSelectedCredentialView : public duiBaseElement
+class DSelectedCredentialView : public DBaseElement
 {
 public:
-    duiSelectedCredentialView();
-    virtual ~duiSelectedCredentialView() override;
+    DSelectedCredentialView();
+    virtual ~DSelectedCredentialView() override;
 
     DEFINE_DUIELEMENTCLASS(L"duiSelectedCredentialView");
     virtual void OnInput(DirectUI::InputEvent* a2);

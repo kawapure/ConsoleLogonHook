@@ -16,12 +16,12 @@ public:
     bool isCredentialControl();
 };
 
-class duiUserSelect : public duiBaseElement
+class DUserSelect : public DBaseElement
 {
 public:
 
-    duiUserSelect();
-    virtual ~duiUserSelect() override;
+    DUserSelect();
+    virtual ~DUserSelect() override;
 
     DEFINE_DUIELEMENTCLASS(L"duiUserSelect");
 

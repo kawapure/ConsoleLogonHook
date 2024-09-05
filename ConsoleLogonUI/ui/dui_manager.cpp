@@ -15,13 +15,13 @@
 #include <shellapi.h>
 #include <dwmapi.h>
 
-duiManager* duiManager::Get()
+CDuiManager* CDuiManager::Get()
 {
-    static duiManager renderer{};
+    static CDuiManager renderer{};
     return &renderer;
 }
 
-duiManager::duiManager()
+CDuiManager::CDuiManager()
 {
     IsReady = false;
 }
@@ -30,8 +30,8 @@ duiManager::duiManager()
 ATOM hotkeyid = 0;
 DWORD WINAPI DuiInitThread(LPVOID lparam)
 {
-    auto pDuiManager = duiManager::Get();
-    HINSTANCE hInstance = duiManager::Get()->hInstance;
+    auto pDuiManager = CDuiManager::Get();
+    HINSTANCE hInstance = CDuiManager::Get()->hInstance;
     DWORD dwDefer;
 
     CoInitializeEx(NULL, 0); 
@@ -41,12 +41,12 @@ DWORD WINAPI DuiInitThread(LPVOID lparam)
     DirectUI::InitThread(2);
     DirectUI::RegisterAllControls();
 
-    DirectUI::ClassInfo<duiSecurityControl, DirectUI::Element>::Register(hInstance);
-    DirectUI::ClassInfo<duiBackgroundWindow, DirectUI::Element>::Register(hInstance);
-    DirectUI::ClassInfo<duiMessageView, DirectUI::Element>::Register(hInstance);
-    DirectUI::ClassInfo<duiSelectedCredentialView, DirectUI::Element>::Register(hInstance);
-    DirectUI::ClassInfo<duiStatusView, DirectUI::Element>::Register(hInstance);
-    DirectUI::ClassInfo<duiUserSelect, DirectUI::Element>::Register(hInstance);
+    DirectUI::ClassInfo<DSecurityControl, DirectUI::Element>::Register(hInstance);
+    DirectUI::ClassInfo<DBackgroundWindow, DirectUI::Element>::Register(hInstance);
+    DirectUI::ClassInfo<DMessageView, DirectUI::Element>::Register(hInstance);
+    DirectUI::ClassInfo<DSelectedCredentialView, DirectUI::Element>::Register(hInstance);
+    DirectUI::ClassInfo<DStatusView, DirectUI::Element>::Register(hInstance);
+    DirectUI::ClassInfo<DUserSelect, DirectUI::Element>::Register(hInstance);
 
     HRESULT hr;
     pDuiManager->pParser = NULL;
@@ -78,7 +78,7 @@ DWORD WINAPI DuiInitThread(LPVOID lparam)
             if (SUCCEEDED(hr))
             {
                 pDuiManager->pWndElement = NULL;
-                hr = duiWindowListener::Create(
+                hr = DWindowListener::Create(
                     pDuiManager->pWndHost->GetHWND(),
                     true,
                     0,
@@ -172,13 +172,13 @@ DWORD WINAPI DuiInitThread(LPVOID lparam)
     return 0;
 }
 
-void duiManager::InitDUI()
+void CDuiManager::InitDUI()
 {
     CreateThread(0,0, DuiInitThread,0,0,0);
     //DuiInitThread(0);
 }
 
-void duiManager::UnloadDUI()
+void CDuiManager::UnloadDUI()
 {
     DirectUI::StopMessagePump();
     auto pDuiManager = Get();
@@ -190,9 +190,9 @@ void duiManager::UnloadDUI()
     DirectUI::UnInitProcessPriv(0);
 }
 
-void duiManager::FrameResize(int a3, int a4, int a5, int cy)
+void CDuiManager::FrameResize(int a3, int a4, int a5, int cy)
 {
-    auto pDuiManager = duiManager::Get();
+    auto pDuiManager = CDuiManager::Get();
     if (a5 <= 0 || cy <= 0)
     {
         HWND hwnd = pDuiManager->pWndHost->GetHWND();
@@ -216,9 +216,9 @@ void duiManager::FrameResize(int a3, int a4, int a5, int cy)
     }
 }
 
-void duiManager::SendWorkToUIThread(std::function<void(void*)> workfunction, void* params)
+void CDuiManager::SendWorkToUIThread(std::function<void(void*)> workfunction, void* params)
 {
-    SendMessageW(duiManager::Get()->pWndElement->GetHWND(), WM_USER+69, (WPARAM)&workfunction, (LPARAM)params);
+    SendMessageW(CDuiManager::Get()->pWndElement->GetHWND(), WM_USER+69, (WPARAM)&workfunction, (LPARAM)params);
 }
 
 struct ImageData
@@ -368,7 +368,7 @@ static bool GetBackground(HBITMAP* OutBitmap)
 
         lastDistance = difference;
         dataToUse = 0;
-        if (!duiManager::UseOEMBackground())
+        if (!CDuiManager::UseOEMBackground())
         {
             int imageDataNumIterations = 0;
             if (item.numberOfImages <= 0)
@@ -482,7 +482,7 @@ static bool GetBackground(HBITMAP* OutBitmap)
 
     WCHAR path[MAX_PATH] = L"C:\\Windows\\system32\\oobe\\info\\backgrounds\\backgroundDefault.jpg";
 
-    if (duiManager::UseOEMBackground() && (PathFileExistsW(path) || OEMBackgroundFileExists(dataToUse)))
+    if (CDuiManager::UseOEMBackground() && (PathFileExistsW(path) || OEMBackgroundFileExists(dataToUse)))
     {
         if (OEMBackgroundFileExists(dataToUse))
         {
@@ -526,7 +526,7 @@ static bool GetBackground(HBITMAP* OutBitmap)
     return 0;
 }
 
-void duiManager::LoadBackground()
+void CDuiManager::LoadBackground()
 {
     if (!this->pUIElement) return;
 
@@ -544,7 +544,7 @@ void duiManager::LoadBackground()
     
 }
 
-void duiManager::LoadBranding()
+void CDuiManager::LoadBranding()
 {
     if (!this->pUIElement) return;
 
@@ -574,13 +574,13 @@ void duiManager::LoadBranding()
     HBITMAP bitmap = external::BrandingLoadImage(L"Basebrd", residToUse, 0, 0, 0, 0);
     if (!bitmap)
     {
-        bitmap = LoadBitmapW(duiManager::Get()->hInstance, MAKEINTRESOURCEW(residToUse));
+        bitmap = LoadBitmapW(CDuiManager::Get()->hInstance, MAKEINTRESOURCEW(residToUse));
     }
 
     auto graphic = DirectUI::Value::CreateGraphic(bitmap, (unsigned char)2, (unsigned int)0xFFFFFFFF, (bool)0, 0, 0);
     if (!graphic)
     {
-        bitmap = LoadBitmapW(duiManager::Get()->hInstance, MAKEINTRESOURCEW(residToUse));
+        bitmap = LoadBitmapW(CDuiManager::Get()->hInstance, MAKEINTRESOURCEW(residToUse));
         graphic = DirectUI::Value::CreateGraphic(bitmap, (unsigned char)2, (unsigned int)0xFFFFFFFF, (bool)0, 0, 0);
     }
     if (!graphic) return;
@@ -593,7 +593,7 @@ void duiManager::LoadBranding()
     graphic->Release();
 }
 
-bool duiManager::UseOEMBackground()
+bool CDuiManager::UseOEMBackground()
 {
     HKEY result;
     if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"Software\\Microsoft\\Windows\\CurrentVersion\\Authentication\\LogonUI\\Background", 0, KEY_READ, &result) == S_OK)
@@ -613,7 +613,7 @@ bool duiManager::UseOEMBackground()
 
 bool bDirty = false;
 
-void duiManager::SetPageActive(DirectUI::UCString resource, std::function<void(DirectUI::Element*)> elementReadyCallback)
+void CDuiManager::SetPageActive(DirectUI::UCString resource, std::function<void(DirectUI::Element*)> elementReadyCallback)
 {
     struct paramsstruct
     {
@@ -625,7 +625,7 @@ void duiManager::SetPageActive(DirectUI::UCString resource, std::function<void(D
     std::function<void(void* params)> workFunction = [](void* params) -> void
         {
             auto prms = reinterpret_cast<paramsstruct*>(params);
-            auto pDuiManager = duiManager::Get();
+            auto pDuiManager = CDuiManager::Get();
 
             DWORD defer;
             pDuiManager->pWndElement->StartDefer(&defer);
@@ -673,13 +673,13 @@ void duiManager::SetPageActive(DirectUI::UCString resource, std::function<void(D
     SendWorkToUIThread(workFunction,(void*)&prms);
 }
 
-void duiBaseElement::Begin()
+void DBaseElement::Begin()
 {
 
 }
 
 static inline void* GetMemberFuncPtr(auto Func) { return reinterpret_cast<void*&>(Func); }
-HRESULT duiWindowListener::Create(HWND hwnd, bool a2, unsigned int a3, DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** pOut)
+HRESULT DWindowListener::Create(HWND hwnd, bool a2, unsigned int a3, DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** pOut)
 {
     auto res = DirectUI::HWNDElement::Create(hwnd,a2,a3,rootElement,debugVariable,pOut);
 
@@ -687,12 +687,12 @@ HRESULT duiWindowListener::Create(HWND hwnd, bool a2, unsigned int a3, DirectUI:
     DWORD old;
     auto vtable = *(void***)(__int64(*pOut) + 0x0);
     VirtualProtect(vtable,0x1D0,PAGE_EXECUTE_READWRITE,&old);
-    vtable[56] = GetMemberFuncPtr(&duiWindowListener::WndProcCustom);
+    vtable[56] = GetMemberFuncPtr(&DWindowListener::WndProcCustom);
     VirtualProtect(vtable,0x1D0,old,0);
     return res;
 }
 
-LRESULT duiWindowListener::WndProcCustom(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+LRESULT DWindowListener::WndProcCustom(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
     auto res = DirectUI::HWNDElement::WndProc(hwnd,uMsg,wParam,lParam);
     
@@ -713,7 +713,7 @@ LRESULT duiWindowListener::WndProcCustom(HWND hwnd, UINT uMsg, WPARAM wParam, LP
             int v19 = 0;
             int v20 = 0;
             if (SystemParametersInfoW(SPI_GETWORKAREA, 0, &pvParam, 0))
-                duiManager::FrameResize(pvParam, v18, v19 - pvParam, v20 - v18);
+                CDuiManager::FrameResize(pvParam, v18, v19 - pvParam, v20 - v18);
             break;
         }
         case WM_CLOSE:
@@ -735,31 +735,31 @@ LRESULT duiWindowListener::WndProcCustom(HWND hwnd, UINT uMsg, WPARAM wParam, LP
     return res;
 }
 
-DirectUI::IClassInfo* duiBackgroundWindow::Class = NULL;
+DirectUI::IClassInfo* DBackgroundWindow::Class = NULL;
 
-duiBackgroundWindow::duiBackgroundWindow()
+DBackgroundWindow::DBackgroundWindow()
 {
 }
 
-duiBackgroundWindow::~duiBackgroundWindow()
+DBackgroundWindow::~DBackgroundWindow()
 {
 }
 
-void duiBackgroundWindow::OnInput(DirectUI::InputEvent* a2)
+void DBackgroundWindow::OnInput(DirectUI::InputEvent* a2)
 {
 
     DirectUI::Element::OnInput(a2);
 }
 
-HRESULT duiBackgroundWindow::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
+HRESULT DBackgroundWindow::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
 {
     int hr = E_OUTOFMEMORY;
 
-    duiBackgroundWindow* instance = (duiBackgroundWindow*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(duiBackgroundWindow));
+    DBackgroundWindow* instance = (DBackgroundWindow*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(DBackgroundWindow));
 
     if (instance != NULL)
     {
-        new (instance) duiBackgroundWindow();
+        new (instance) DBackgroundWindow();
         hr = instance->Initialize(0, rootElement, debugVariable);
         if (SUCCEEDED(hr))
         {
@@ -778,9 +778,9 @@ HRESULT duiBackgroundWindow::CreateInstance(DirectUI::Element* rootElement, unsi
     return hr;
 }
 
-DirectUI::IClassInfo* duiBackgroundWindow::GetClassInfoW()
+DirectUI::IClassInfo* DBackgroundWindow::GetClassInfoW()
 {
-    return duiBackgroundWindow::Class;
+    return DBackgroundWindow::Class;
 }
 
 //#define WITHCMD true
@@ -802,7 +802,7 @@ public:
 GUID CLSID_AuthUILegacyShutdownDialog{ 0x0B1325EF5,0x0DD4D,0x4988,0x0A2,0x0B3,0x0C7,0x76,0x0AD,0x45,0x0D0,0x0D6 };
 GUID GUID_b1325ef5_dd4d_4988_a2b3_c776ad45d0d6{0x0EC530685 ,0x6C7B ,0x4D06 ,0x0A5,0x5B, 0x5A, 0x1A, 0x81, 0x78, 0x3E, 0x0F4 };
 
-void duiBackgroundWindow::OnEvent(DirectUI::Event* iev)
+void DBackgroundWindow::OnEvent(DirectUI::Event* iev)
 {
     if (iev->target->GetID() == DirectUI::StrToID((DirectUI::UCString)L"Shutdown") && iev->type == DirectUI::Button::Click) //good enough
     {
@@ -813,7 +813,7 @@ void duiBackgroundWindow::OnEvent(DirectUI::Event* iev)
         //if (CoCreateInstance(CLSID_AuthUILegacyShutdownDialog,0,1u, GUID_b1325ef5_dd4d_4988_a2b3_c776ad45d0d6,(LPVOID*)&legacyPtr.p))
         //{
         //    int two = 2;
-        //    legacyPtr->ShowSETOnly(duiManager::Get()->pWndHost->GetHWND(),1,(long long*)&two);
+        //    legacyPtr->ShowSETOnly(CDuiManager::Get()->pWndHost->GetHWND(),1,(long long*)&two);
         //}
     }
 
@@ -836,13 +836,13 @@ void duiBackgroundWindow::OnEvent(DirectUI::Event* iev)
     DirectUI::Element::OnEvent(iev);
 }
 
-void duiBackgroundWindow::OnDestroy()
+void DBackgroundWindow::OnDestroy()
 {
     DirectUI::Element::OnDestroy();
 
 }
 
-void duiBackgroundWindow::Begin()
+void DBackgroundWindow::Begin()
 {
 
 }

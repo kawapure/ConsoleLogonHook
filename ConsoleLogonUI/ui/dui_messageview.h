@@ -12,11 +12,11 @@ struct MessageOptionControlWrapper
     std::wstring GetText();
 };
 
-class duiMessageView : public duiBaseElement
+class DMessageView : public DBaseElement
 {
 public:
-    duiMessageView();
-    virtual ~duiMessageView() override;
+    DMessageView();
+    virtual ~DMessageView() override;
 
     DEFINE_DUIELEMENTCLASS(L"duiMessageView");
 

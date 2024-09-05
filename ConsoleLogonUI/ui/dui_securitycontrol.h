@@ -37,12 +37,12 @@ public:
     int SecurityOptionIndex;
 };*/
 
-class duiSecurityControl : public duiBaseElement
+class DSecurityControl : public DBaseElement
 {
 public:
 
-    duiSecurityControl();
-    virtual ~duiSecurityControl() override;
+    DSecurityControl();
+    virtual ~DSecurityControl() override;
 
     DEFINE_DUIELEMENTCLASS(L"duiSecurityControl");
 

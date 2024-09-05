@@ -5,10 +5,10 @@
 
 HBITMAP GetHBITMAPFromImageResource(int resourceID)
 {
-    auto foundresource = FindResourceW(duiManager::Get()->hInstance, MAKEINTRESOURCEW(resourceID), L"IMAGE");
+    auto foundresource = FindResourceW(CDuiManager::Get()->hInstance, MAKEINTRESOURCEW(resourceID), L"IMAGE");
     if (!foundresource) return (HBITMAP)0;
-    DWORD imageSize = SizeofResource(duiManager::Get()->hInstance, foundresource);
-    const void* resourceData = ::LockResource(::LoadResource(duiManager::Get()->hInstance, foundresource));
+    DWORD imageSize = SizeofResource(CDuiManager::Get()->hInstance, foundresource);
+    const void* resourceData = ::LockResource(::LoadResource(CDuiManager::Get()->hInstance, foundresource));
 
     HBITMAP hbitmap = 0;
 

@@ -12,7 +12,7 @@ std::vector<EditControlWrapper> editControls;
 
 void external::NotifyWasInSelectedCredentialView()
 {
-	//duiManager::Get()->GetWindowOfTypeId<uiUserSelect>(5)->wasInSelectedCredentialView = true;
+	//CDuiManager::Get()->GetWindowOfTypeId<uiUserSelect>(5)->wasInSelectedCredentialView = true;
 }
 
 const wchar_t* gname = 0;
@@ -25,10 +25,10 @@ void external::SelectedCredentialView_SetActive(const wchar_t* accountNameToDisp
 	gname = accountNameToDisplay;
 	gflag = flag;
 	bReady = false;
-	duiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_SELECTEDCREDENTIALVIEW), [](DirectUI::Element*) -> void 
+	CDuiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_SELECTEDCREDENTIALVIEW), [](DirectUI::Element*) -> void 
 		{
 			bool isChangePassword = (gflag == 2);
-			auto pDuiManager = duiManager::Get();
+			auto pDuiManager = CDuiManager::Get();
 			auto UserList = (DirectUI::Selector*)pDuiManager->pUIElement->FindDescendent(ATOMID(L"UserList"));
 			auto InsideFrame = pDuiManager->pUIElement->FindDescendent(ATOMID(L"InsideFrame"));
 			DirectUI::Button* btn = 0;
@@ -65,13 +65,13 @@ void external::SelectedCredentialView_SetActive(const wchar_t* accountNameToDisp
 					nameforPfp = gname;
 			}
 			if (!isChangePassword)
-				auto userName = duiSelectedCredentialView::CreateStringField(btn, nametoshow, true, false);
+				auto userName = DSelectedCredentialView::CreateStringField(btn, nametoshow, true, false);
 			
 			//TODO: FIND A WAY TO CHECK IF A USER IS LOCKED
 			bool locked = false;
 
 			if (locked)
-				duiSelectedCredentialView::CreateStringField(btn, L"Locked", true, true); //TODO: LOCALISE THIS STRING
+				DSelectedCredentialView::CreateStringField(btn, L"Locked", true, true); //TODO: LOCALISE THIS STRING
 
 			auto pic = btn->FindDescendent(ATOMID(L"Picture"));
 			if (pic)
@@ -122,7 +122,7 @@ void external::SelectedCredentialView_SetActive(const wchar_t* accountNameToDisp
 				if (!control.actualInstance) continue;
 
 				bool bIsPasswordField = (i > 0 && i <= 3);
-				auto field = duiSelectedCredentialView::CreateEditField(btn, control.GetFieldName(), control.isVisible(), (i == lastIndex), bIsPasswordField);
+				auto field = DSelectedCredentialView::CreateEditField(btn, control.GetFieldName(), control.isVisible(), (i == lastIndex), bIsPasswordField);
 
 				auto inputtedText = control.GetInputtedText();
 				if (inputtedText.size() > 0)
@@ -218,11 +218,11 @@ void external::EditControl_Destroy(void* actualInstance)
 }
 
 bool bWasInSecurityControl = false;
-void duiSelectedCredentialView::Begin()
+void DSelectedCredentialView::Begin()
 {
 	if (!hasSetupNotify)
 	{
-		auto uiRenderer = duiManager::Get();
+		auto uiRenderer = CDuiManager::Get();
 		if (uiRenderer)
 		{
 			//auto securityControl = uiRenderer->GetWindowOfTypeId<uiSecurityControl>(2);
@@ -255,19 +255,19 @@ bool EditControlWrapper::isVisible()
 	return external::EditControl_isVisible(actualInstance);
 }
 
-DirectUI::IClassInfo* duiSelectedCredentialView::Class = NULL;
+DirectUI::IClassInfo* DSelectedCredentialView::Class = NULL;
 
-duiSelectedCredentialView::duiSelectedCredentialView()
+DSelectedCredentialView::DSelectedCredentialView()
 {
 }
 
-duiSelectedCredentialView::~duiSelectedCredentialView()
+DSelectedCredentialView::~DSelectedCredentialView()
 {
 }
 
-DirectUI::Element* duiSelectedCredentialView::CreateStringField(DirectUI::Element* UserTile, std::wstring content, bool bVisible, bool bIsSmall)
+DirectUI::Element* DSelectedCredentialView::CreateStringField(DirectUI::Element* UserTile, std::wstring content, bool bVisible, bool bIsSmall)
 {
-	auto pDuiManager = duiManager::Get();
+	auto pDuiManager = CDuiManager::Get();
 	if (!pDuiManager || !UserTile) return 0;
 
 	auto SelectorFieldFrame = UserTile->FindDescendent(ATOMID(L"SelectorFieldFrame"));
@@ -408,9 +408,9 @@ struct EditListener : public DirectUI::IElementListener
 	}
 };
 
-DirectUI::Element* duiSelectedCredentialView::CreateEditField(DirectUI::Element* UserTile, std::wstring content, bool bVisible, bool bShowSubmit, bool bIsPassword)
+DirectUI::Element* DSelectedCredentialView::CreateEditField(DirectUI::Element* UserTile, std::wstring content, bool bVisible, bool bShowSubmit, bool bIsPassword)
 {
-	auto pDuiManager = duiManager::Get();
+	auto pDuiManager = CDuiManager::Get();
 	if (!pDuiManager || !UserTile) return 0;
 
 	auto SelectorFieldFrame = UserTile->FindDescendent(ATOMID(L"SelectorFieldFrame"));
@@ -488,9 +488,9 @@ DirectUI::Element* duiSelectedCredentialView::CreateEditField(DirectUI::Element*
 	return textElement;
 }
 
-DirectUI::Element* duiSelectedCredentialView::CreateCommandLinkField(DirectUI::Element* UserTile, std::wstring content, bool bVisible)
+DirectUI::Element* DSelectedCredentialView::CreateCommandLinkField(DirectUI::Element* UserTile, std::wstring content, bool bVisible)
 {
-	auto pDuiManager = duiManager::Get();
+	auto pDuiManager = CDuiManager::Get();
 	if (!pDuiManager || !UserTile) return 0;
 
 	auto SelectorFieldFrame = UserTile->FindDescendent(ATOMID(L"SelectorFieldFrame"));
@@ -539,16 +539,16 @@ DirectUI::Element* duiSelectedCredentialView::CreateCommandLinkField(DirectUI::E
 	return textElement;
 }
 
-HRESULT duiSelectedCredentialView::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
+HRESULT DSelectedCredentialView::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
 {
 	int hr = E_OUTOFMEMORY;
 
 	// Using HeapAlloc instead of new() is required as DirectUI::Element::_DisplayNodeCallback calls HeapFree() with the element
-	duiSelectedCredentialView* instance = (duiSelectedCredentialView*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(duiSelectedCredentialView));
+	DSelectedCredentialView* instance = (DSelectedCredentialView*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(DSelectedCredentialView));
 
 	if (instance != NULL)
 	{
-		new (instance) duiSelectedCredentialView();
+		new (instance) DSelectedCredentialView();
 		hr = instance->Initialize(0, rootElement, debugVariable);
 		if (SUCCEEDED(hr))
 		{
@@ -567,12 +567,12 @@ HRESULT duiSelectedCredentialView::CreateInstance(DirectUI::Element* rootElement
 	return hr;
 }
 
-DirectUI::IClassInfo* duiSelectedCredentialView::GetClassInfoW()
+DirectUI::IClassInfo* DSelectedCredentialView::GetClassInfoW()
 {
-	return duiSelectedCredentialView::Class;
+	return DSelectedCredentialView::Class;
 }
 
-void duiSelectedCredentialView::OnEvent(DirectUI::Event* iev)
+void DSelectedCredentialView::OnEvent(DirectUI::Event* iev)
 {
 	if (iev->flag != DirectUI::GMF_BUBBLED)
 		return;
@@ -597,7 +597,7 @@ void duiSelectedCredentialView::OnEvent(DirectUI::Event* iev)
 }
 
 
-void duiSelectedCredentialView::OnInput(DirectUI::InputEvent* a2)
+void DSelectedCredentialView::OnInput(DirectUI::InputEvent* a2)
 {
 	DirectUI::Element::OnInput(a2);
 
@@ -613,7 +613,7 @@ void duiSelectedCredentialView::OnInput(DirectUI::InputEvent* a2)
 
 }
 
-void duiSelectedCredentialView::OnDestroy()
+void DSelectedCredentialView::OnDestroy()
 {
 	DirectUI::Element::OnDestroy();
 

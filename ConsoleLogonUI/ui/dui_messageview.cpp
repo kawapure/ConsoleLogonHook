@@ -16,22 +16,22 @@ void external::MessageView_SetActive()
     HideConsoleUI();
     bIsInMessageView = true;
     //MessageBox(0, L"SetActive", 0, 0);
-    duiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_MESSAGEVIEW), [](DirectUI::Element*) -> void {
+    CDuiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_MESSAGEVIEW), [](DirectUI::Element*) -> void {
         
         //MessageBox(0,std::format(L"{}",controls.size()).c_str(), 0, 0);
-        auto MessageFrame = duiManager::Get()->pUIElement->FindDescendent(ATOMID(L"MessageFrame"));
+        auto MessageFrame = CDuiManager::Get()->pUIElement->FindDescendent(ATOMID(L"MessageFrame"));
         if (MessageFrame)
         {
             MessageFrame->SetVisible(true);
         }
         
-        auto Message = duiManager::Get()->pUIElement->FindDescendent(ATOMID(L"ShortMessage"));
+        auto Message = CDuiManager::Get()->pUIElement->FindDescendent(ATOMID(L"ShortMessage"));
         if (Message)
         {
             Message->SetContentString((DirectUI::UCString)gMessage.c_str());
         }
 
-        auto FullIcon = duiManager::Get()->pUIElement->FindDescendent(ATOMID(L"ShortIcon"));
+        auto FullIcon = CDuiManager::Get()->pUIElement->FindDescendent(ATOMID(L"ShortIcon"));
         if (FullIcon)
         {
             auto icon = LoadIconW(0, MAKEINTRESOURCEW(0x7F01));
@@ -52,7 +52,7 @@ void external::MessageView_SetActive()
             auto& control = controls[i];
 
             DirectUI::Button* optbtn = 0;
-            HRESULT hr = duiManager::Get()->pParser->CreateElement(
+            HRESULT hr = CDuiManager::Get()->pParser->CreateElement(
                 (DirectUI::UCString)L"dialogButton",
                 NULL,
                 NULL,
@@ -61,7 +61,7 @@ void external::MessageView_SetActive()
             );
             if (optbtn)
             {
-                auto dialogbtnframe = duiManager::Get()->pUIElement->FindDescendent(ATOMID(L"DialogButtonFrame"));
+                auto dialogbtnframe = CDuiManager::Get()->pUIElement->FindDescendent(ATOMID(L"DialogButtonFrame"));
                 auto textElm = optbtn;
                 if (textElm)
                     textElm->SetContentString((DirectUI::UCString)control.GetText().c_str());
@@ -73,7 +73,7 @@ void external::MessageView_SetActive()
 
         return; 
         });
-    //auto messageView = duiManager::Get()->GetWindowOfTypeId<uiMessageView>(3);
+    //auto messageView = CDuiManager::Get()->GetWindowOfTypeId<uiMessageView>(3);
     //if (messageView)
     //    messageView->SetActive();
 }
@@ -89,16 +89,16 @@ void external::MessageOptionControl_Create(void* actualInsance, int optionflag)
 void external::MessageView_SetMessage(const wchar_t* message)
 {
     gMessage = message;
-    duiManager::SendWorkToUIThread([](void* message) -> void {
+    CDuiManager::SendWorkToUIThread([](void* message) -> void {
 
-        auto Message = duiManager::Get()->pUIElement->FindDescendent(ATOMID(L"ShortMessage"));
+        auto Message = CDuiManager::Get()->pUIElement->FindDescendent(ATOMID(L"ShortMessage"));
         if (Message && bIsInMessageView)
         {
             Message->SetContentString((DirectUI::UCString)message);
         }
         else if (Message)
         {
-            auto MessageFrame = duiManager::Get()->pUIElement->FindDescendent(ATOMID(L"MessageFrame"));
+            auto MessageFrame = CDuiManager::Get()->pUIElement->FindDescendent(ATOMID(L"MessageFrame"));
             if (MessageFrame)
             {
                 MessageFrame->SetVisible(false);
@@ -107,7 +107,7 @@ void external::MessageView_SetMessage(const wchar_t* message)
 
         return;
         }, (void*)message);
-    //auto messageView = duiManager::Get()->GetWindowOfTypeId<uiMessageView>(3);
+    //auto messageView = CDuiManager::Get()->GetWindowOfTypeId<uiMessageView>(3);
     //if (messageView)
     //{
     //    messageView->message = message;
@@ -133,9 +133,9 @@ void external::MessageOrStatusView_Destroy()
 {
     if (bIsInMessageView)
     {
-        duiManager::SendWorkToUIThread([](void* message) -> void {
+        CDuiManager::SendWorkToUIThread([](void* message) -> void {
 
-            auto MessageFrame = duiManager::Get()->pUIElement->FindDescendent(ATOMID(L"MessageFrame"));
+            auto MessageFrame = CDuiManager::Get()->pUIElement->FindDescendent(ATOMID(L"MessageFrame"));
             if (MessageFrame)
             {
                 MessageFrame->SetVisible(false);
@@ -167,27 +167,27 @@ std::wstring MessageOptionControlWrapper::GetText()
     return external::MessageOptionControl_GetText(actualInstance);
 }
 
-DirectUI::IClassInfo* duiMessageView::Class = NULL;
+DirectUI::IClassInfo* DMessageView::Class = NULL;
 
-duiMessageView::duiMessageView()
+DMessageView::DMessageView()
 {
 }
 
-duiMessageView::~duiMessageView()
+DMessageView::~DMessageView()
 {
     
 }
 
-HRESULT duiMessageView::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
+HRESULT DMessageView::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
 {
     int hr = E_OUTOFMEMORY;
 
     // Using HeapAlloc instead of new() is required as DirectUI::Element::_DisplayNodeCallback calls HeapFree() with the element
-    duiMessageView* instance = (duiMessageView*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(duiMessageView));
+    DMessageView* instance = (DMessageView*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(DMessageView));
 
     if (instance != NULL)
     {
-        new (instance) duiMessageView();
+        new (instance) DMessageView();
         hr = instance->Initialize(0, rootElement, debugVariable);
         if (SUCCEEDED(hr))
         {
@@ -206,12 +206,12 @@ HRESULT duiMessageView::CreateInstance(DirectUI::Element* rootElement, unsigned 
     return hr;
 }
 
-DirectUI::IClassInfo* duiMessageView::GetClassInfoW()
+DirectUI::IClassInfo* DMessageView::GetClassInfoW()
 {
-    return duiMessageView::Class;
+    return DMessageView::Class;
 }
 
-void duiMessageView::OnEvent(DirectUI::Event* iev)
+void DMessageView::OnEvent(DirectUI::Event* iev)
 {
     if (iev->flag != DirectUI::GMF_BUBBLED)
         return;
@@ -240,13 +240,13 @@ void duiMessageView::OnEvent(DirectUI::Event* iev)
     
 }
 
-void duiMessageView::OnDestroy()
+void DMessageView::OnDestroy()
 {
     DirectUI::Element::OnDestroy();
 
 }
 
-void duiMessageView::Begin()
+void DMessageView::Begin()
 {
 
 }

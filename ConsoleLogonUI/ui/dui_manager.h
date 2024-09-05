@@ -20,24 +20,24 @@ virtual void Begin() override;
 
 #define ATOMID(id) (DirectUI::StrToID((DirectUI::UCString)id))
 
-class duiBaseElement : public DirectUI::Element //DO NOT INSTANTIATE
+class DBaseElement : public DirectUI::Element //DO NOT INSTANTIATE
 {
 public:
 
     virtual void Begin();
 };
 
-class duiBackgroundWindow : public duiBaseElement
+class DBackgroundWindow : public DBaseElement
 {
 public:
-    duiBackgroundWindow();
-    virtual ~duiBackgroundWindow() override;
+    DBackgroundWindow();
+    virtual ~DBackgroundWindow() override;
 
     DEFINE_DUIELEMENTCLASS(L"duiBackgroundWindow");
     virtual void OnInput(DirectUI::InputEvent* a2);
 };
 
-class duiWindowListener : public DirectUI::HWNDElement
+class DWindowListener : public DirectUI::HWNDElement
 {
 public:
     //static DirectUI::IClassInfo* Class;
@@ -55,7 +55,7 @@ public:
     //} 
 };
 
-class duiManager
+class CDuiManager
 {
 public:
 
@@ -65,13 +65,13 @@ public:
     DirectUI::DUIXmlParser* pParser;
     DirectUI::NativeHWNDHost* pWndHost;
     DirectUI::Element* pUIElement;
-    duiWindowListener* pWndElement;
+    DWindowListener* pWndElement;
 
     DirectUI::Element* pageContainerElement;
 
-    static duiManager* Get();
+    static CDuiManager* Get();
 
-    duiManager();
+    CDuiManager();
 
     static void InitDUI();
     static void UnloadDUI();

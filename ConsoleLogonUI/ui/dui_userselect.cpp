@@ -14,11 +14,11 @@ void external::UserSelect_SetActive()
 {
     //MessageBoxW(0, L"1", L"1", 0);
     HideConsoleUI();
-    duiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_USERSELECT), [](DirectUI::Element* elm) -> void
+    CDuiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_USERSELECT), [](DirectUI::Element* elm) -> void
         {
             return;
         });
-    //auto userSelect = duiManager::Get()->GetWindowOfTypeId<uiUserSelect>(5);
+    //auto userSelect = CDuiManager::Get()->GetWindowOfTypeId<uiUserSelect>(5);
     //if (userSelect)
     //{
     //    SPDLOG_INFO("Setting active status userSelect");
@@ -34,10 +34,10 @@ void external::SelectableUserOrCredentialControl_Sort()
 {
     std::sort(buttons.begin(), buttons.end(), [](SelectableUserOrCredentialControlWrapper& a, SelectableUserOrCredentialControlWrapper& b) { return a.GetText() < b.GetText(); });
 
-    duiManager::SendWorkToUIThread([](void* param) -> void
+    CDuiManager::SendWorkToUIThread([](void* param) -> void
         {
             auto& userButtons = *reinterpret_cast<std::vector<SelectableUserOrCredentialControlWrapper>*>(param);
-            auto pDuiManager = duiManager::Get();
+            auto pDuiManager = CDuiManager::Get();
             auto UserList = (DirectUI::Selector*)pDuiManager->pUIElement->FindDescendent(ATOMID(L"UserList"));
             if (!UserList)
             {
@@ -128,7 +128,7 @@ void external::SelectableUserOrCredentialControl_Create(void* actualInstance, co
     wrapper.pfp = GetHBITMAPFromImageFile(const_cast<WCHAR*>(path));
     //int w = 0;
     //int h = 0;
-    //if (duiManager::LoadTextureFromFile(ws2s(path).c_str(), &wrapper.texture, &w, &h))
+    //if (CDuiManager::LoadTextureFromFile(ws2s(path).c_str(), &wrapper.texture, &w, &h))
     //    SPDLOG_INFO("TEXTURE LOADED");
 
     buttons.push_back(wrapper);
@@ -168,26 +168,26 @@ bool SelectableUserOrCredentialControlWrapper::isCredentialControl()
     return external::SelectableUserOrCredentialControl_isCredentialControl(actualInstance);
 }
 
-DirectUI::IClassInfo* duiUserSelect::Class = NULL;
+DirectUI::IClassInfo* DUserSelect::Class = NULL;
 
-duiUserSelect::duiUserSelect()
+DUserSelect::DUserSelect()
 {
 }
 
-duiUserSelect::~duiUserSelect()
+DUserSelect::~DUserSelect()
 {
 }
 
-HRESULT duiUserSelect::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
+HRESULT DUserSelect::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
 {
     int hr = E_OUTOFMEMORY;
 
     // Using HeapAlloc instead of new() is required as DirectUI::Element::_DisplayNodeCallback calls HeapFree() with the element
-    duiUserSelect* instance = (duiUserSelect*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(duiUserSelect));
+    DUserSelect* instance = (DUserSelect*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(DUserSelect));
 
     if (instance != NULL)
     {
-        new (instance) duiUserSelect();
+        new (instance) DUserSelect();
         hr = instance->Initialize(0, rootElement, debugVariable);
         if (SUCCEEDED(hr))
         {
@@ -206,12 +206,12 @@ HRESULT duiUserSelect::CreateInstance(DirectUI::Element* rootElement, unsigned l
     return hr;
 }
 
-DirectUI::IClassInfo* duiUserSelect::GetClassInfoW()
+DirectUI::IClassInfo* DUserSelect::GetClassInfoW()
 {
-    return duiUserSelect::Class;
+    return DUserSelect::Class;
 }
 
-void duiUserSelect::OnEvent(DirectUI::Event* iev)
+void DUserSelect::OnEvent(DirectUI::Event* iev)
 {
     if (iev->flag != DirectUI::GMF_BUBBLED)
         return;
@@ -243,13 +243,13 @@ void duiUserSelect::OnEvent(DirectUI::Event* iev)
     }
 }
 
-void duiUserSelect::OnDestroy()
+void DUserSelect::OnDestroy()
 {
     DirectUI::Element::OnDestroy();
 
 }
 
-void duiUserSelect::Begin()
+void DUserSelect::Begin()
 {
 
 }

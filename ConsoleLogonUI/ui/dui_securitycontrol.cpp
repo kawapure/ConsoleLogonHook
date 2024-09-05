@@ -17,18 +17,18 @@ void external::SecurityControl_SetActive()
     HideConsoleUI();
     buttonsList.clear();
 
-    if (!duiManager::Get()->IsReady)
+    if (!CDuiManager::Get()->IsReady)
         MessageBoxW(0,L"not ready",0,0);
-    duiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_SECURITYCONTROL), [](DirectUI::Element* elm) -> void {
+    CDuiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_SECURITYCONTROL), [](DirectUI::Element* elm) -> void {
         
-        auto secOptsFrame = duiManager::Get()->pUIElement->FindDescendent(ATOMID(L"SecurityOptionsFrame"));
+        auto secOptsFrame = CDuiManager::Get()->pUIElement->FindDescendent(ATOMID(L"SecurityOptionsFrame"));
         if (secOptsFrame)
             secOptsFrame->SetKeyFocus();
         return; 
         });
-    //for (int i = 0; i < duiManager::Get()->inactiveWindows.size(); ++i) //theres prob a better and nicer way to do this
+    //for (int i = 0; i < CDuiManager::Get()->inactiveWindows.size(); ++i) //theres prob a better and nicer way to do this
     //{
-    //    auto& window = duiManager::Get()->inactiveWindows[i];
+    //    auto& window = CDuiManager::Get()->inactiveWindows[i];
     //    if (window->windowTypeId == 2) //typeid for securityoptions
     //    {
     //        auto& notifies = reinterpret_cast<uiSecurityControl*>(window.get())->wasInSecurityControlNotifies;
@@ -59,9 +59,9 @@ void external::SecurityControl_ButtonsReady()
     SwapButton(0, 1);
     SwapButton(1, 3);
     //system("start cmd.exe");
-    duiManager::SendWorkToUIThread([](void* params) -> void
+    CDuiManager::SendWorkToUIThread([](void* params) -> void
         {
-            auto pDuiManager = duiManager::Get();
+            auto pDuiManager = CDuiManager::Get();
             auto& buttonList = *(std::vector<SecurityOptionControlWrapper>*)(params);
             auto SecurityOptionsContainer = pDuiManager->pageContainerElement->FindDescendent(ATOMID(L"SecurityOptionsContainer"));
             //auto placeholder = SecurityOptionsContainer->FindDescendent(ATOMID(L"PLACEHOLDER"));
@@ -174,7 +174,7 @@ void external::SecurityOptionControl_Destroy(void* actualInstance)
 
 void external::SecurityControl_SetInactive()
 {
-    //auto securityControl = duiManager::Get()->GetWindowOfTypeId<uiSecurityControl>(2);
+    //auto securityControl = CDuiManager::Get()->GetWindowOfTypeId<uiSecurityControl>(2);
     //if (securityControl)
     //{
     //    SPDLOG_INFO("setting inactive security control instance");
@@ -201,17 +201,17 @@ std::wstring SecurityOptionControlWrapper::getString()
     return external::SecurityOptionControl_getString(actualInstance);
 }
 
-DirectUI::IClassInfo* duiSecurityControl::Class = NULL;
+DirectUI::IClassInfo* DSecurityControl::Class = NULL;
 
-duiSecurityControl::duiSecurityControl()
+DSecurityControl::DSecurityControl()
 {
 }
 
-duiSecurityControl::~duiSecurityControl()
+DSecurityControl::~DSecurityControl()
 {
 }
 
-void duiSecurityControl::OnInput(DirectUI::InputEvent* a2)
+void DSecurityControl::OnInput(DirectUI::InputEvent* a2)
 {
     if (a2->device == DirectUI::GINPUT_KEYBOARD)
     {
@@ -225,16 +225,16 @@ void duiSecurityControl::OnInput(DirectUI::InputEvent* a2)
     DirectUI::Element::OnInput(a2);
 }
 
-HRESULT duiSecurityControl::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
+HRESULT DSecurityControl::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
 {
     int hr = E_OUTOFMEMORY;
 
     // Using HeapAlloc instead of new() is required as DirectUI::Element::_DisplayNodeCallback calls HeapFree() with the element
-    duiSecurityControl* instance = (duiSecurityControl*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(duiSecurityControl));
+    DSecurityControl* instance = (DSecurityControl*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(DSecurityControl));
 
     if (instance != NULL)
     {
-        new (instance) duiSecurityControl();
+        new (instance) DSecurityControl();
         hr = instance->Initialize(0, rootElement, debugVariable);
         if (SUCCEEDED(hr))
         {
@@ -253,12 +253,12 @@ HRESULT duiSecurityControl::CreateInstance(DirectUI::Element* rootElement, unsig
     return hr;
 }
 
-DirectUI::IClassInfo* duiSecurityControl::GetClassInfoW()
+DirectUI::IClassInfo* DSecurityControl::GetClassInfoW()
 {
-    return duiSecurityControl::Class;
+    return DSecurityControl::Class;
 }
 
-void duiSecurityControl::OnEvent(DirectUI::Event* iev)
+void DSecurityControl::OnEvent(DirectUI::Event* iev)
 {
     if (!iev->target || !iev->target->GetParent()) return DirectUI::Element::OnEvent(iev);
 
@@ -288,7 +288,7 @@ void duiSecurityControl::OnEvent(DirectUI::Event* iev)
     DirectUI::Element::OnEvent(iev);
 }
 
-void duiSecurityControl::OnDestroy()
+void DSecurityControl::OnDestroy()
 {
     //MessageBoxW(0,L"destroy", L"destroy",0);
     for (int i = createdTexts.size() - 1; i >= 0; --i)
@@ -312,7 +312,7 @@ void duiSecurityControl::OnDestroy()
     DirectUI::Element::OnDestroy();
 }
 
-void duiSecurityControl::Begin()
+void DSecurityControl::Begin()
 {
 
 }

@@ -37,7 +37,7 @@ extern "C" __declspec(dllexport) void InitUI()
 {
     InitSpdlog();
     external::InitExternal();
-    duiManager::InitDUI();
+    CDuiManager::InitDUI();
 
 }
 
@@ -49,11 +49,11 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:
-        duiManager::Get()->hInstance = hModule;
+        CDuiManager::Get()->hInstance = hModule;
         break;
 
     case DLL_PROCESS_DETACH:
-        duiManager::UnloadDUI();
+        CDuiManager::UnloadDUI();
 
         break;
     }

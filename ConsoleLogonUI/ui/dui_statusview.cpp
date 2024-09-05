@@ -79,8 +79,8 @@ void external::StatusView_SetActive(const wchar_t* text)
 {
     HideConsoleUI();
     ptext = text;
-    duiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_STATUSVIEW), [](DirectUI::Element* element) -> void { 
-        auto pDuiManager = duiManager::Get();
+    CDuiManager::SetPageActive((DirectUI::UCString)MAKEINTRESOURCEW(IDUIF_STATUSVIEW), [](DirectUI::Element* element) -> void { 
+        auto pDuiManager = CDuiManager::Get();
         auto str = element->FindDescendent(ATOMID(L"StatusText"));
         str->SetContentString((DirectUI::UCString)ptext);
 
@@ -112,26 +112,26 @@ void external::StatusView_SetActive(const wchar_t* text)
         });
 }
 
-DirectUI::IClassInfo* duiStatusView::Class = NULL;
+DirectUI::IClassInfo* DStatusView::Class = NULL;
 
-duiStatusView::duiStatusView()
+DStatusView::DStatusView()
 {
 }
 
-duiStatusView::~duiStatusView()
+DStatusView::~DStatusView()
 {
 }
 
-HRESULT duiStatusView::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
+HRESULT DStatusView::CreateInstance(DirectUI::Element* rootElement, unsigned long* debugVariable, DirectUI::Element** newElement)
 {
     int hr = E_OUTOFMEMORY;
 
     // Using HeapAlloc instead of new() is required as DirectUI::Element::_DisplayNodeCallback calls HeapFree() with the element
-    duiStatusView* instance = (duiStatusView*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(duiStatusView));
+    DStatusView* instance = (DStatusView*)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(DStatusView));
 
     if (instance != NULL)
     {
-        new (instance) duiStatusView();
+        new (instance) DStatusView();
         hr = instance->Initialize(0, rootElement, debugVariable);
         if (SUCCEEDED(hr))
         {
@@ -150,12 +150,12 @@ HRESULT duiStatusView::CreateInstance(DirectUI::Element* rootElement, unsigned l
     return hr;
 }
 
-DirectUI::IClassInfo* duiStatusView::GetClassInfoW()
+DirectUI::IClassInfo* DStatusView::GetClassInfoW()
 {
-    return duiStatusView::Class;
+    return DStatusView::Class;
 }
 
-void duiStatusView::OnEvent(DirectUI::Event* iev)
+void DStatusView::OnEvent(DirectUI::Event* iev)
 {
     if (iev->flag != DirectUI::GMF_BUBBLED)
         return;
@@ -164,13 +164,13 @@ void duiStatusView::OnEvent(DirectUI::Event* iev)
 
 }
 
-void duiStatusView::OnDestroy()
+void DStatusView::OnDestroy()
 {
     DirectUI::Element::OnDestroy();
 
 }
 
-void duiStatusView::Begin()
+void DStatusView::Begin()
 {
 
 }

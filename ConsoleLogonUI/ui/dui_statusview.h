@@ -2,12 +2,12 @@
 #include "dui_manager.h"
 #include <string>
 
-class duiStatusView : public duiBaseElement
+class DStatusView : public DBaseElement
 {
 public:
 
-    duiStatusView();
-    virtual ~duiStatusView() override;
+    DStatusView();
+    virtual ~DStatusView() override;
 
     DEFINE_DUIELEMENTCLASS(L"duiStatusView");
 
