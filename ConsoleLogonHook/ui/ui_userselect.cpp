@@ -275,13 +275,6 @@ void CUserSelect::InitHooks(IHookSearchHandler *search)
 
     search->Execute();
 
-    //TEST_HOOKSEARCH_RESULT(LogonViewManager__Lock, 150060);
-    //TEST_HOOKSEARCH_RESULT(UserSelectionView__RuntimeClassInitialize, 207824);
-    //TEST_HOOKSEARCH_RESULT(SelectableUserOrCredentialControl__RuntimeClassInitialize, 261108);
-    //TEST_HOOKSEARCH_RESULT(CredProvSelectionView__RuntimeClassInitialize, 198944);
-    //TEST_HOOKSEARCH_RESULT(SelectableUserOrCredentialControl_Destructor, 202376);
-    ////TEST_HOOKSEARCH_RESULT(globals::ConsoleUIView__Initialize, 150060);
-
     if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
     {
         Hook(LogonViewManager__Lock, LogonViewManager__Lock_Hook);

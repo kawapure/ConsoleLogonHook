@@ -145,12 +145,6 @@ void CMessageView::InitHooks(IHookSearchHandler *search)
 
     search->Execute();
 
-    //TEST_HOOKSEARCH_RESULT(MessageView__RuntimeClassInitialize, 212112);
-    //TEST_HOOKSEARCH_RESULT(BasicTextControl__RuntimeClassInitialize1, 278616);
-    //TEST_HOOKSEARCH_RESULT(BasicTextControl__RuntimeClassInitialize2, 278948);
-    //TEST_HOOKSEARCH_RESULT(MessageOptionControl__RuntimeClassInitialize, 265224);
-    //TEST_HOOKSEARCH_RESULT(MessageOptionControl__Destructor, 262512);
-
     if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
     {
         Hook(MessageView__RuntimeClassInitialize, MessageView__RuntimeClassInitialize_Hook);

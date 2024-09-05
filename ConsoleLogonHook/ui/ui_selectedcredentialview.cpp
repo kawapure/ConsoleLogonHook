@@ -178,12 +178,6 @@ void CSelectedCredentialView::InitHooks(IHookSearchHandler *search)
 
 	search->Execute();
 
-	//TEST_HOOKSEARCH_RESULT(SelectedCredentialView__v_OnKeyInput, 211456);
-	//TEST_HOOKSEARCH_RESULT(CredUISelectedCredentialView__RuntimeClassInitialize, 191404);
-	//TEST_HOOKSEARCH_RESULT(SelectedCredentialView__RuntimeClassInitialize, 209344);
-	//TEST_HOOKSEARCH_RESULT(EditControl__RuntimeClassInitialize, 252704);
-	//TEST_HOOKSEARCH_RESULT(CheckboxControl__Destructor, 226956);
-
 	if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
 	{
 		uint8_t* focusPatch = memory::FindPatternCached<uint8_t*>("focusPatch", { "74 ?? 48 8B 4B ?? 48 8B 01 48 8B 80" }); //to patch the check for the bottom most field being selected when pressing enter

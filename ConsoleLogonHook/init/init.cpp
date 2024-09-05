@@ -123,8 +123,6 @@ namespace init
 
         search->Execute();
 
-        //TEST_HOOKSEARCH_RESULT(ControlBase__PaintArea, 280008);
-
         if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
         {
             Hook(ControlBase__PaintArea, ControlBase__PaintArea_Hook);

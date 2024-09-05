@@ -387,17 +387,6 @@ void CSecurityControl::InitHooks(IHookSearchHandler *search)
 
     search->Execute();
 
-    uintptr_t fuckyou = (uintptr_t)GetModuleHandleW(L"ConsoleLogon.dll");
-    SPDLOG_INFO("offset of the fucking asshole {:x}", (uintptr_t)LogonViewManager__ShowSecurityOptions - fuckyou);
-
-    //TEST_HOOKSEARCH_RESULT(LogonViewManager__ShowSecurityOptionsUIThread, 164220);
-    //TEST_HOOKSEARCH_RESULT(LogonViewManager__ShowSecurityOptions, 153644);
-    //TEST_HOOKSEARCH_RESULT(SecurityOptionControl_RuntimeClassInitialize, 262680);
-    //TEST_HOOKSEARCH_RESULT(SecurityOptionControlHandleKeyInput, 263504);
-    //TEST_HOOKSEARCH_RESULT(SecurityOptionControlVtable, 262450);
-    //TEST_HOOKSEARCH_RESULT(SecurityOptionsView__RuntimeClassInitialize, 205204);
-    //TEST_HOOKSEARCH_RESULT(SecurityOptionsView__Destructor, 205072);
-
     if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
     {
         if (SecurityOptionControlVtable)

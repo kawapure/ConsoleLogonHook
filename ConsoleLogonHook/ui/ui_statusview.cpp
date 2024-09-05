@@ -94,9 +94,6 @@ void CStatusView::InitHooks(IHookSearchHandler *search)
 
     search->Execute();
 
-    //TEST_HOOKSEARCH_RESULT(StatusView__RuntimeClassInitialize, 211632);
-    //TEST_HOOKSEARCH_RESULT(StatusView__Destructor, 140552);
-
     if (search->GetType() == EHookSearchHandlerType::TYPE_INSTALLER)
     {
         Hook(StatusView__RuntimeClassInitialize, StatusView__RuntimeClassInitialize_Hook);
